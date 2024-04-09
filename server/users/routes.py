@@ -45,7 +45,7 @@ split_docs = docs_splitter.split_documents(docs)
 NYAYMITRA_FEATURES_VECTORSTORE = FAISS.from_documents(split_docs, EMBEDDINGS)
 NYAYMITRA_FEATURES_VECTORSTORE.save_local('assistant_data/faiss_index_assistant')
 print('CREATED VECTORSTORE')
-VECTORDB = FAISS.load_local('assistant_data/faiss_index_assistant', EMBEDDINGS,allow_dangerous_deserialization = True)
+VECTORDB = FAISS.load_local('assistant_data/faiss_index_assistant', EMBEDDINGS, allow_dangerous_deserialization=True)
 
 
 
@@ -357,18 +357,15 @@ def trending_query(domain, module_name, summary, source_lang):
         submodules = generate_submodules_from_web(module.module_name)
         print(submodules)
         keys_list = list(submodules.keys())
-        submodules_split_one = {key: submodules[key] for key in keys_list[:2]}
-        submodules_split_two = {key: submodules[key] for key in keys_list[2:4]}
-        submodules_split_three = {key: submodules[key] for key in keys_list[4:]}
+        submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
+        submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
         future_content_one = executor.submit(generate_content_from_web, submodules_split_one, 'first')
         future_content_two = executor.submit(generate_content_from_web, submodules_split_two, 'second')
-        future_content_three = executor.submit(generate_content_from_web, submodules_split_three, 'third')
 
         content_one = future_content_one.result()
         content_two = future_content_two.result()
-        content_three = future_content_three.result()
 
-        content = content_one + content_two + content_three
+        content = content_one + content_two 
 
         module.submodule_content = content
         module.image_urls = images
@@ -584,30 +581,25 @@ def query_module(module_id, source_language, websearch):
             submodules = generate_submodules_from_web(module.module_name)
             print(submodules)
             keys_list = list(submodules.keys())
-            submodules_split_one = {key: submodules[key] for key in keys_list[:2]}
-            submodules_split_two = {key: submodules[key] for key in keys_list[2:4]}
-            submodules_split_three = {key: submodules[key] for key in keys_list[4:]}
+            submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
+            submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
             future_content_one = executor.submit(generate_content_from_web, submodules_split_one, 'first')
             future_content_two = executor.submit(generate_content_from_web, submodules_split_two, 'second')
-            future_content_three = executor.submit(generate_content_from_web, submodules_split_three, 'third')
 
         else:
             submodules = generate_submodules(module.module_name)
             print(submodules)
             keys_list = list(submodules.keys())
-            submodules_split_one = {key: submodules[key] for key in keys_list[:2]}
-            submodules_split_two = {key: submodules[key] for key in keys_list[2:4]}
-            submodules_split_three = {key: submodules[key] for key in keys_list[4:]}
+            submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
+            submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
             future_content_one = executor.submit(generate_content, submodules_split_one, 'first')
             future_content_two = executor.submit(generate_content, submodules_split_two, 'second')
-            future_content_three = executor.submit(generate_content, submodules_split_three, 'third')
 
     # Retrieve the results when both functions are done
     content_one = future_content_one.result()
     content_two = future_content_two.result()
-    content_three = future_content_three.result()
 
-    content = content_one + content_two + content_three
+    content = content_one + content_two
 
     module.submodule_content = content
     module.image_urls = images
@@ -729,8 +721,6 @@ def gen_quiz(module_id, source_language, websearch):
         quiz = generate_quiz_from_web(sub_module_names)
     else:
         quiz = generate_quiz(sub_module_names)
-
-    
     translated_quiz = translate_quiz(quiz["quizData"], source_language)
     return jsonify({"message": "Query successful", "quiz": translated_quiz, "response": True}), 200
 

@@ -24,6 +24,7 @@ openai_api_key3 = os.environ.get('OPENAI_API_KEY3')
 tavily_api_key1 = os.environ.get('TAVILY_API_KEY1')
 tavily_api_key2 = os.environ.get('TAVILY_API_KEY2')
 tavily_api_key3 = os.environ.get('TAVILY_API_KEY3')
+print('OPENAI API KEYS: ', openai_api_key1, openai_api_key2, openai_api_key3)
 
 google_serp_api_key = os.environ.get('GOOGLE_SERP_API_KEY')
 
@@ -170,8 +171,7 @@ def generate_submodules_from_web(module_name):
     return output
 
 def generate_content_from_web(sub_module_name, api_key_to_use):
-    content_generation_prompt = """I'm seeking your expertise on the subject of {sub_module_name}.\
-    You have access to the subject's information which you have to use while generating \ 
+    content_generation_prompt = """I'm seeking your expertise on the subject of {sub_module_name}. You have access to the subject's information which you have to use while generating \
     a detailed and informative description that covers essential aspects such as definition, \
     explanation, use cases, applications, and any other relevant details. \
     Ensure that the content exceeds 800 words to offer a thorough understanding of the topic.
