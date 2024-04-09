@@ -45,7 +45,7 @@ split_docs = docs_splitter.split_documents(docs)
 NYAYMITRA_FEATURES_VECTORSTORE = FAISS.from_documents(split_docs, EMBEDDINGS)
 NYAYMITRA_FEATURES_VECTORSTORE.save_local('assistant_data/faiss_index_assistant')
 print('CREATED VECTORSTORE')
-VECTORDB = FAISS.load_local('assistant_data/faiss_index_assistant', EMBEDDINGS)
+VECTORDB = FAISS.load_local('assistant_data/faiss_index_assistant', EMBEDDINGS,allow_dangerous_deserialization = True)
 
 
 
