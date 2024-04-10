@@ -75,26 +75,42 @@ function Modules() {
     }
   };
 
+  const fetchdocData = async (route: string, setDataFunction: any, setModuleIdFunction: any) => {
+    setIsLoading(true);
+    setIsLoadingData(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      const response = await axios.post(route,formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setModuleIdFunction(response.data.module_ids);
+      const DataArray = response.data.content
+        ? Object.entries(response.data.content).map(([title, content]) => ({ title, content }))
+        : [];
+      setDataFunction(DataArray);
+      setSourceLanguage(response.data.source_language)
+      setShowTabs(true);
+      let trans = response.data.topic;
+      localStorage.setItem('topicname', trans);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+      setIsLoadingData(false);
+    }
+  };
+
 
   const onLearnClick = async () => {
     // Handle the click event for the "Start Learning" button
     // Fetch data for both beginner and advanced tabs
     if (selectedFile!=null){
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-
-        try {
-          const response = await axios.post(`/api/query2/doc-upload/${searchTerm}`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-          console.log(response.data);
-          // Handle the response from the server
-        } catch (error) {
-          console.error('Error uploading file:', error);
-          // Handle the error
-        }
+        await fetchdocData(`/api/query2/doc-upload/${searchTerm}/beginner/${sourceLanguage}`, setBeginnerData, setBeginnerModuleIdData);
+        await fetchdocData(`/api/query2/doc-upload/${searchTerm}/advanced/${sourceLanguage}`, setAdvancedData, setAdvanceModuleIdData);
+     
     }
     else {
       await fetchData(`/api/query2/${searchTerm}/beginner/${webSearchOn}/${sourceLanguage}`, setBeginnerData, setBeginnerModuleIdData);
