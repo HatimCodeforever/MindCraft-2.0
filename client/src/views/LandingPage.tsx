@@ -7,8 +7,9 @@ import feat2 from '../assets/images/feat2.png'
 import feat3 from '../assets/images/feat3.png'
 import feat4 from '../assets/images/feat4.png'
 import Typewriter from 'typewriter-effect';
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import Testimonials from '../components/Testimonials'
+import Pricing from '../components/Pricing'
+import Features from '../components/Features'
 
 import './Landing.css'
 
@@ -31,24 +32,6 @@ import { Link } from 'react-router-dom';
 
 
 export default function SplitScreen() {
-  const { ref: ref1, inView: inView1 } = useInView({ triggerOnce: false, });
-  const { ref: ref2, inView: inView2 } = useInView({ triggerOnce: false, });
-  const { ref: ref3, inView: inView3 } = useInView({ triggerOnce: false, });
-  const { ref: ref4, inView: inView4 } = useInView({ triggerOnce: false, });
-
-
-  const variants = {
-    hidden: { opacity: 0, y: -10 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.4,
-        ease: "easeInOut",
-        yoyo: 3, // Repeats the animation 3 times
-      },
-    },
-  };
 
 
   return (
@@ -131,182 +114,10 @@ export default function SplitScreen() {
             src={land1}
           />
         </Flex>
-
-
       </Stack>
-
-      <motion.div
-        ref={ref1}
-        variants={variants}
-        initial="hidden"
-        animate={inView1 ? 'show' : 'hidden'}
-      >
-        <Flex
-          p={4}
-          direction={{ base: 'column', md: 'row' }}
-          align="center"
-          mb={10}
-          bg={useColorModeValue('purple.300', 'purple.600')}
-          justify="center"
-          boxShadow="lg" // Add a shadow to the card
-          borderRadius="lg" // Round the corners of the card
-          maxW={"200vh"} // Set the maximum width of the card
-          mx="auto" // Center the card horizontally
-        >
-          <Box
-            flexShrink={0}
-            width={{ base: '100%', md: '25%' }}
-            height={{ base: 'auto', md: '300px' }}
-            mb={{ base: 4, md: 0 }}
-          >
-            <Image
-              alt={'Multilingual Support Image'}
-              objectFit={'contain'}
-              boxSize={'full'}
-              src={feat1}
-            />
-          </Box>
-          <Box mr={5} p={0}>
-            <Text className='feature-heading' fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}>
-              <b>Multilingual Support</b>
-            </Text>
-            <Text textAlign={'justify'} className='content' fontSize={{ base: 'md', lg: 'lg' }} mt={4}>
-              Break free from language barriers with MindCraft's groundbreaking platform. Our seamless multilingual support lets learners worldwide dive into personalized educational content. Wherever you are, whatever language you speak, MindCraft opens doors to a global learning experience. Embrace education without borders – welcome to a future where knowledge knows no limits!
-            </Text>
-          </Box>
-        </Flex>
-      </motion.div>
-
-      <motion.div
-        ref={ref2}
-        variants={variants}
-        initial="hidden"
-        animate={inView2 ? 'show' : 'hidden'}
-      >
-        <Flex
-          p={4}
-          direction={{ base: 'column', md: 'row' }}
-          align="center"
-          mb={10}
-          bg={useColorModeValue('purple.300', 'purple.600')}
-          justify="center"
-          boxShadow="lg" // Add a shadow to the card
-          borderRadius="lg" // Round the corners of the card
-          maxW={"200vh"} // Set the maximum width of the card
-          mx="auto" // Center the card horizontally
-        >
-
-          <Box ml={5} p={0}>
-            <Text className='feature-heading' fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}>
-              <b>Rewarding Engagement with Badges and Certificates</b>
-            </Text>
-            <Text textAlign={'justify'} className='content' fontSize={{ base: 'md', lg: 'lg' }} mt={4}>
-              Celebrate your milestones at MindCraft with our rewarding system. Earn badges and certificates for daily commitment and achievements, tangible markers of your progress. Our carefully crafted rewards motivate and inspire, propelling you forward on your path to success. Join us in creating a culture of achievement and continual growth.</Text>
-          </Box>
-          <Box
-            flexShrink={0}
-            width={{ base: '100%', md: '25%' }}
-            height={{ base: 'auto', md: '300px' }}
-            mb={{ base: 4, md: 0 }}
-          >
-            <Image
-              alt={'Rewarding Engagement with Badges and Certificates'}
-              objectFit={'contain'}
-              boxSize={'full'}
-              src={feat2}
-              style={{paddingLeft:"20px"}}
-            />
-          </Box>
-        </Flex>
-      </motion.div>
-
-      <motion.div
-        ref={ref3}
-        variants={variants}
-        initial="hidden"
-        animate={inView3 ? 'show' : 'hidden'}
-      >
-        <Flex
-          p={4}
-          direction={{ base: 'column', md: 'row' }}
-          align="center"
-          mb={10}
-          bg={useColorModeValue('purple.300', 'purple.600')}
-          justify="center"
-          boxShadow="lg" // Add a shadow to the card
-          borderRadius="lg" // Round the corners of the card
-          maxW={"200vh"} // Set the maximum width of the card
-          mx="auto" // Center the card horizontally
-        >
-          <Box
-            flexShrink={0}
-            width={{ base: '100%', md: '25%' }}
-            height={{ base: 'auto', md: '300px' }}
-            mb={{ base: 4, md: 0 }}
-            mr={{ md: 6 }}
-          >
-            <Image
-              alt={'Evaluate and Progress with Quizzes & Assignments'}
-              objectFit={'contain'}
-              boxSize={'full'}
-              src={feat3}
-            />
-          </Box>
-          <Box mr={5} p={0}>
-            <Text className='feature-heading' fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}>
-              <b>Evaluate and Progress with Quizzes & Assignments</b>
-            </Text>
-            <Text textAlign={'justify'} className='content' fontSize={{ base: 'md', lg: 'lg' }} mt={4}>
-              Enhance your learning on MindCraft with module quizzes and targeted assignments. Customize your journey from beginner to advanced courses, aligning the curriculum with your expertise. Specialized assessments reinforce key concepts, enabling confident progression. MindCraft transforms education into a personalized, dynamic, and rewarding adventure tailored to your unique needs and aspirations.</Text>
-          </Box>
-        </Flex>
-      </motion.div>
-
-      <motion.div
-        ref={ref4}
-        variants={variants}
-        initial="hidden"
-        animate={inView4 ? 'show' : 'hidden'}
-      >
-        <Flex
-          p={4}
-          direction={{ base: 'column', md: 'row' }}
-          align="center"
-          mb={10}
-          bg={useColorModeValue('purple.300', 'purple.600')}
-          justify="center"
-          boxShadow="lg" // Add a shadow to the card
-          borderRadius="lg" // Round the corners of the card
-          maxW={"200vh"} // Set the maximum width of the card
-          mx="auto" // Center the card horizontally
-        >
-
-          <Box ml={5} p={0}>
-            <Text className='feature-heading' fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}>
-              <b>Rewarding Engagement with Badges and Certificates</b>
-            </Text>
-            <Text textAlign={'justify'} className='content' fontSize={{ base: 'md', lg: 'lg' }} mt={4}>
-              Celebrate your milestones at MindCraft with our rewarding system. Earn badges and certificates for daily commitment and achievements, tangible markers of your progress. Our carefully crafted rewards motivate and inspire, propelling you forward on your path to success. Join us in creating a culture of achievement and continual growth.</Text>
-          </Box>
-          <Box
-            flexShrink={0}
-            width={{ base: '100%', md: '25%' }}
-            height={{ base: 'auto', md: '300px' }}
-            mb={{ base: 4, md: 0 }}
-          >
-            <Image
-              alt={'Rewarding Engagement with Badges and Certificates'}
-              objectFit={'contain'}
-              boxSize={'full'}
-              src={feat4}
-            />
-          </Box>
-        </Flex>
-      </motion.div>
-
-      {/* ------------------------------------------------------------------------------------------- */}
-
-
+      <Features/>
+      <Pricing/>
+      <Testimonials/>
       <Footer />
     </div>
   );
