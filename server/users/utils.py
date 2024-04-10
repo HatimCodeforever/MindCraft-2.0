@@ -627,3 +627,34 @@ def generate_recommendations(user_course, user_interest, past_module_names = Non
             output = incomplete_output
 
     return output
+
+def generate_module_from_textbook(topic, level, vectordb):
+  relevant_docs = vectordb.similarity_search('Important modules or topics on '+ topic)
+  rel_docs = [doc.page_content for doc in relevant_docs]
+  context = '\n'.join(rel_docs)
+  print('CONTEXT:\n'+context+'\n\n\n')
+  module_generation_prompt = """You are an educational assistant with knowledge in various domains. You will be provided with context from a textbook \
+  and your task is to design a course to complete all and ONLY the major concepts in the textbook. Your main goal is to craft a suitable number of {level} Level \
+  educational modules with brief summaries based on a given topic and the context provided to you. \
+  Ensure the module names are relevant to the topic and provide a concise summary for each using the context. \
+  You MUST only use the knowledge provided in the context to craft the module names and summaries.
+  Format the output in JSON, with each key representing a complete module name and its corresponding value being the brief summary.
+
+Topic: {topic}
+
+Context: {context}
+
+Follow the provided JSON format diligently, incorporating information from the context to generate the summaries and ensuring the modules are appropriately {level} in difficulty."""
+
+  client = OpenAI()
+  completion = client.chat.completions.create(
+          model = 'gpt-3.5-turbo-1106',
+          messages = [
+              {'role':'user', 'content': module_generation_prompt.format(topic= topic, context = context, level = level)},
+          ],
+          response_format = {'type':'json_object'},
+          seed = 42,
+)
+  output = ast.literal_eval(completion.choices[0].message.content)
+
+  return output
