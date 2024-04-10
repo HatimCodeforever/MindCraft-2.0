@@ -12,7 +12,7 @@ import Navbar from '../components/navbar';
 import CourseCard from '../components/CourseCard';
 import Footer from '../components/footer';
 import ChatWidget from '../components/Chat_widget'
-import WorkingCard from '../components/workingCard';
+import WorkingCard from '../components/WorkingCard';
 
 import RecommendedCard from '../components/RecommendedCard';
 import { useState, useEffect } from 'react';

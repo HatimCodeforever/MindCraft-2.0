@@ -462,6 +462,92 @@ def translate_evaluations(evaluations, target_language):
 
     return trans_eval
 
+@users.route('/query2/doc-upload/<string:topicname>/<string:level>/<string:source_lang>', methods=['POST'])
+def doc_query_topic(topicname,level,source_lang):
+    user_id = session.get('user_id')
+    print(session.get('user_id'))
+    if user_id is None:
+        return jsonify({"message": "User not logged in", "response":False}), 401
+    
+    # check if user exists
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({"message": "User not found", "response":False}), 404
+    websearch ='false'
+    if 'file' not in request.files:
+        return 'No file part', 400
+    file = request.files['file']
+    if file.filename == '':
+        return 'No selected file', 400
+    if not os.path.exists("uploads"):
+        os.makedirs("uploads")
+    if file:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join("uploads", filename))
+    
+    DOCS_PATH = os.path.join("uploads", filename)
+    loader = PyPDFLoader(DOCS_PATH)
+    docs = loader.load()
+    docs_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    split_docs = docs_splitter.split_documents(docs)
+    TEXTBOOK_VECTORSTORE = FAISS.from_documents(split_docs, EMBEDDINGS)
+    TEXTBOOK_VECTORSTORE.save_local('user_docs')
+    print('CREATED VECTORSTORE')
+    VECTORDB_TEXTBOOK = FAISS.load_local('user_docs', EMBEDDINGS, allow_dangerous_deserialization=True)
+
+    # language detection for input provided
+    if source_lang == 'auto':
+        source_language = Lang(str(detector.detect_language_of(topicname)).split('.')[1].title()).pt1
+        print(f"Source Language: {source_language}")
+    else:
+        source_language=source_lang
+        print(f"Source Language: {source_language}")
+
+    # translate other languages input to english
+    trans_topic_name = GoogleTranslator(source='auto', target='en').translate(topicname)
+    print(f"Translated topic name: {trans_topic_name}")
+
+    # check if topic exists in database along with its modulenames and summaries
+    topic = Topic.query.filter_by(topic_name=trans_topic_name.lower()).first()
+    if topic is None:
+            topic = Topic(topic_name=trans_topic_name.lower())
+            db.session.add(topic)
+            db.session.commit()
+            print(f"topic added to database: {topic}")
+
+    
+    module_summary_content = generate_module_from_textbook(trans_topic_name,level,VECTORDB_TEXTBOOK)    
+    print("Content",module_summary_content)
+    module_ids = {}
+    for modulename, modulesummary in module_summary_content.items():
+        new_module = Module(
+            module_name=modulename,
+            topic_id=topic.topic_id,
+            websearch=websearch,
+            level=level,
+            summary=modulesummary
+        )
+        db.session.add(new_module)
+        db.session.commit()
+        module_ids[modulename] = new_module.module_id
+
+    # add user query to database
+    new_user_query = Query(user_id=user.user_id, topic_id=topic.topic_id, level=level, websearch=websearch, lang=source_language)
+    db.session.add(new_user_query)
+    db.session.commit()
+
+    trans_moduleids = {}
+    if source_language !='en':
+        for key, value in module_ids.items():
+            trans_key = GoogleTranslator(source='en', target=source_language).translate(str(key))
+            trans_moduleids[trans_key]=value
+        module_ids=trans_moduleids
+    # translate module summary content to source language
+    trans_module_summary_content = translate_module_summary(module_summary_content, source_language)
+    print(f"Translated module summary content: {trans_module_summary_content}")
+
+    return jsonify({"message": "Query successful", "topic_id":topic.topic_id, "topic":trans_topic_name, "source_language":source_language, "module_ids":module_ids, "content": trans_module_summary_content, "response":True}), 200
+
 # query route --> if websearch is true then fetch from web and feed into model else directly feed into model
 # save frequently searched queries in database for faster retrieval
 @users.route('/query2/<string:topicname>/<string:level>/<string:websearch>/<string:source_lang>', methods=['GET'])
