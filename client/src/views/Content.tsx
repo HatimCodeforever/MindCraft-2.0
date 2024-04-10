@@ -9,6 +9,7 @@ import { faDownload, faFileInvoice } from '@fortawesome/free-solid-svg-icons';
 import Quiz from '../components/Quiz';
 import VoiceQuiz from '../components/VoiceQuiz';
 import { useSessionCheck } from "./useSessionCheck";
+import Typewriter from 'typewriter-effect';
 import ChatWidget from '../components/Chat_widget';
 import { useTranslation } from "react-i18next";
 
@@ -26,6 +27,46 @@ interface Subject {
 }
 
 type Data = Subject[];
+
+const TypingHeadingAnimation = ({ text }) => {
+  const [typedText, setTypedText] = useState('');
+
+  useEffect(() => {
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      if (currentIndex <= text.length) {
+        setTypedText(text.substring(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 10); // Adjust typing speed here
+
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return <Text className='feature-heading' fontSize="3xl" textAlign="justify" overflowWrap="break-word">{typedText}</Text>;
+};
+
+const TypingContentAnimation = ({ text }) => {
+  const [typedText, setTypedText] = useState('');
+
+  useEffect(() => {
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      if (currentIndex <= text.length) {
+        setTypedText(text.substring(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 10); // Adjust typing speed here
+
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return <Text className='content' fontSize={"lg"} textAlign="justify" overflowWrap="break-word">{typedText}</Text>;
+};
 
 const Sidebar = ({ data, setSelectedSubject, isLoading, setCurrentIndex, setQuizData, setQuiz2Data, setQuiz3Data, trans }: { data: Data; setSelectedSubject: (subject: Subject) => void; isLoading: boolean; setCurrentIndex: (index: number) => void; setQuizData: any, setQuiz2Data: any, setQuiz3Data: any, trans: any }) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -74,10 +115,10 @@ const Sidebar = ({ data, setSelectedSubject, isLoading, setCurrentIndex, setQuiz
       const source_lang = localStorage.getItem('source_lang');
       const response = await axios.get(`/api/quiz3/${moduleid}/${source_lang}/${websearch}`);
       setQuiz3Data(response.data.quiz);
-    //   setQuiz3Data( [
-    //     "What is the difference between supervised and unsupervised learning?",
-    //     "Explain the bias-variance tradeoff in machine learning.",
-    // ]);
+      //   setQuiz3Data( [
+      //     "What is the difference between supervised and unsupervised learning?",
+      //     "Explain the bias-variance tradeoff in machine learning.",
+      // ]);
 
     } catch (error) {
       console.error('Error fetching quiz data:', error);
@@ -85,8 +126,8 @@ const Sidebar = ({ data, setSelectedSubject, isLoading, setCurrentIndex, setQuiz
   };
 
   useEffect(() => {
-    localStorage.setItem('active_index',activeIndex.toString());
-    
+    localStorage.setItem('active_index', activeIndex.toString());
+
     setSelectedSubject(data[activeIndex]);
     setCurrentIndex(activeIndex);
   }, [activeIndex]);
@@ -290,15 +331,18 @@ const ContentSec = ({ subject, isLoading, images, index, data_len, quiz, quiz2, 
               Your browser does not support the audio element.
             </audio>
           ) : null}
-          <Text textAlign="justify" className='content' mb={10} fontSize={"xl"} overflowWrap="break-word">{subject.content}</Text>
+          {/* <Text textAlign="justify" className='content' mb={10} fontSize={"xl"} overflowWrap="break-word">{subject.content}</Text> */}
+          <TypingContentAnimation text={subject.content} />
           <Center>
             <Image boxSize={{ base: '50px', md: '100px', lg: '500px' }} src={images[index]} alt="Subject Image" mb={5} mt={5} />
           </Center>
           <VStack spacing={8} mb={8}>
             {subject.subsections.map((section, index) => (
-              <Box key={index}>
-                <Text fontSize="3xl" className='feature-heading' mb={2}><b>{section.title}</b></Text>
-                <Text className='content' fontSize={"lg"} textAlign="justify" overflowWrap="break-word">{section.content}</Text>
+              <Box key={index} width={"100%"}>
+                <TypingHeadingAnimation text={section.title}/>
+                {/* <Text fontSize="3xl" className='feature-heading' mb={2}><b>{section.title}</b></Text> */}
+                {/* <Text className='content' fontSize={"lg"} textAlign="justify" overflowWrap="break-word">{section.content}</Text> */}
+                <TypingContentAnimation text={section.content} />
               </Box>
             ))}
           </VStack>
