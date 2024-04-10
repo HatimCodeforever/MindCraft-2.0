@@ -14,6 +14,10 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.units import mm
 from serpapi import GoogleSearch
+import requests
+import json
+
+
 
 
 load_dotenv()
@@ -24,6 +28,8 @@ openai_api_key3 = os.environ.get('OPENAI_API_KEY3')
 tavily_api_key1 = os.environ.get('TAVILY_API_KEY1')
 tavily_api_key2 = os.environ.get('TAVILY_API_KEY2')
 tavily_api_key3 = os.environ.get('TAVILY_API_KEY3')
+serper_api_key1 = os.environ.get('SERPER_API_KEY1')
+serper_api_key2 = os.environ.get('SERPER_API_KEY2')
 print('OPENAI API KEYS: ', openai_api_key1, openai_api_key2, openai_api_key3)
 
 google_serp_api_key = os.environ.get('GOOGLE_SERP_API_KEY')
@@ -239,19 +245,49 @@ Follow the provided JSON format diligently, incorporating information from the s
     
     return output
 
+# def module_image_from_web(module):
+#     params = {
+#     "q": module,
+#     "engine": "google_images",
+#     "ijn": "0",
+#     "api_key": google_serp_api_key
+#     }
+
+#     search = GoogleSearch(params)
+#     results = search.get_dict()
+#     image_results = results["images_results"]
+#     image_links = [i['original'] for i in image_results[:10]]
+#     return image_links
+
 def module_image_from_web(module):
+    url = "https://google.serper.dev/images"
+    payload = json.dumps({
+        "q": module
+    })
+    headers = {
+        'X-API-KEY': serper_api_key1,
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+    json_response = json.loads(response.text)
+    image_results = json_response["images"]
+    image_links = [i["imageUrl"] for i in image_results]
+    return image_links
+
+def module_videos_from_web(module):
     params = {
     "q": module,
-    "engine": "google_images",
+    "engine": "google_videos",
     "ijn": "0",
     "api_key": google_serp_api_key
     }
 
     search = GoogleSearch(params)
     results = search.get_dict()
-    image_results = results["images_results"]
-    image_links = [i['original'] for i in image_results[:10]]
-    return image_links
+    video_results = results["video_results"]
+    yt_links = [i['link'] for i in video_results[:10]]
+    return yt_links
 
 
 def generate_pdf(pdf_file_path, modulename, module_summary, submodule_content, src_lang):
