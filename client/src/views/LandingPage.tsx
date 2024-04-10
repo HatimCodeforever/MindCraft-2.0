@@ -115,8 +115,14 @@ export default function SplitScreen() {
           />
         </Flex>
       </Stack>
+      <div className="absolute3">
+        <div className="bg-shape1 bg-teal"></div>
+      </div>
+      <div className="absolute4">
+        <div className="bg-shape1 bg-purple"></div>
+      </div>
       <Features/>
-      <Pricing/>
+      {/* <Pricing/> */}
       <Testimonials/>
       <Footer />
     </div>
