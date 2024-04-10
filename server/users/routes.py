@@ -462,6 +462,20 @@ def translate_evaluations(evaluations, target_language):
 
     return trans_eval
 
+@users.route('/query2/doc-upload/<string:topicname>', methods=['POST'])
+def doc_query_topic(topicname):
+    if 'file' not in request.files:
+        return 'No file part', 400
+    file = request.files['file']
+    if file.filename == '':
+        return 'No selected file', 400
+    if not os.path.exists("uploads"):
+        os.makedirs("uploads")
+    if file:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join("uploads", filename))
+        return 'File uploaded successfully', 200
+
 # query route --> if websearch is true then fetch from web and feed into model else directly feed into model
 # save frequently searched queries in database for faster retrieval
 @users.route('/query2/<string:topicname>/<string:level>/<string:websearch>/<string:source_lang>', methods=['GET'])
