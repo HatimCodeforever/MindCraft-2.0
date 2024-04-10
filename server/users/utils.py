@@ -646,7 +646,7 @@ Context: {context}
 
 Follow the provided JSON format diligently, incorporating information from the context to generate the summaries and ensuring the modules are appropriately {level} in difficulty."""
 
-  client = OpenAI()
+  client = OpenAI(api_key=openai_api_key1)
   completion = client.chat.completions.create(
           model = 'gpt-3.5-turbo-1106',
           messages = [

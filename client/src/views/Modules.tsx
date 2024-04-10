@@ -18,12 +18,14 @@ import Footer from "../components/footer";
 import MyCard from "../components/myCard";
 import axios from "axios";
 import { BsFire } from "react-icons/bs";
+import FileUploadButton from './FileUploadButton';
 import { useSessionCheck } from "./useSessionCheck";
 import ChatWidget from '../components/Chat_widget'
 
 
 function Modules() {
   useSessionCheck();
+  const [selectedFile, setSelectedFile] = useState(null);
   const [beginnerData, setBeginnerData] = useState([]);
   const [beginnerModuleIdData, setBeginnerModuleIdData] = useState({});
   const [advanceModuleIdData, setAdvanceModuleIdData] = useState({});
@@ -73,11 +75,47 @@ function Modules() {
     }
   };
 
+  const fetchdocData = async (route: string, setDataFunction: any, setModuleIdFunction: any) => {
+    setIsLoading(true);
+    setIsLoadingData(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      const response = await axios.post(route,formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setModuleIdFunction(response.data.module_ids);
+      const DataArray = response.data.content
+        ? Object.entries(response.data.content).map(([title, content]) => ({ title, content }))
+        : [];
+      setDataFunction(DataArray);
+      setSourceLanguage(response.data.source_language)
+      setShowTabs(true);
+      let trans = response.data.topic;
+      localStorage.setItem('topicname', trans);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+      setIsLoadingData(false);
+    }
+  };
+
+
   const onLearnClick = async () => {
     // Handle the click event for the "Start Learning" button
     // Fetch data for both beginner and advanced tabs
-    await fetchData(`/api/query2/${searchTerm}/beginner/${webSearchOn}/${sourceLanguage}`, setBeginnerData, setBeginnerModuleIdData);
-    await fetchData(`/api/query2/${searchTerm}/advanced/${webSearchOn}/${sourceLanguage}`, setAdvancedData, setAdvanceModuleIdData);
+    if (selectedFile!=null){
+        await fetchdocData(`/api/query2/doc-upload/${searchTerm}/beginner/${sourceLanguage}`, setBeginnerData, setBeginnerModuleIdData);
+        await fetchdocData(`/api/query2/doc-upload/${searchTerm}/advanced/${sourceLanguage}`, setAdvancedData, setAdvanceModuleIdData);
+     
+    }
+    else {
+      await fetchData(`/api/query2/${searchTerm}/beginner/${webSearchOn}/${sourceLanguage}`, setBeginnerData, setBeginnerModuleIdData);
+      await fetchData(`/api/query2/${searchTerm}/advanced/${webSearchOn}/${sourceLanguage}`, setAdvancedData, setAdvanceModuleIdData);
+    }
   };
 
   const handleTabClick = (tab: any) => {
@@ -102,16 +140,21 @@ function Modules() {
             onChange={handleWebSearchToggle}
           />
         </Flex>
-        <Box mt={4}>
+        <Box paddingTop={2}>
+          <FileUploadButton onFileSelect={setSelectedFile} />
+        </Box>
+
+        <Box mt={4} ml={4}>
           <Input
             type="text"
             placeholder="What do you want to learn?"
             size="lg"
             borderColor={"black"}
-            width="40vw"
+            width="30vw"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+
         </Box>
         <Button
           p={6}

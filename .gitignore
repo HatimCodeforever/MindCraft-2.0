@@ -3,5 +3,6 @@
 .ipynb_checkpoints/
 .env
 venv
+assistant_data/
 __pycache__/
 csv_data_files/
