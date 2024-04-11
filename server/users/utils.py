@@ -700,11 +700,13 @@ def generate_submodule_from_textbook(module_name, vectordb):
   rel_docs = [doc.page_content for doc in relevant_docs]
   context = '\n'.join(rel_docs)
   print('CONTEXT:\n'+context+'\n\n\n')
-  sub_module_generation_prompt = """You are an educational assistant with knowledge in various domains. You will be provided with context from a textbook \
-  and your task is to design a course to complete all and ONLY the major concepts in the textbook. Your main goal is to craft a suitable number of \
+  sub_module_generation_prompt = """You are an educational assistant with knowledge in various domains. \
+  You will be provided with context from a textbook \
+  and your task is to design a course to complete all and only the major concepts of the module, using the context from the textbook. \
+  Your main goal is to craft a suitable number of \"
   'Sub-Modules' names based on the given module name and the context provided to you. \
    The output should be in json format where each key corresponds to the \
-   sub-module number and the values are the sub-module names.
+   sub-module number and the values are the sub-module names. Do not include summary or any other irrelevant topics
 
 Module Name: {module_name}
 
