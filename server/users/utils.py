@@ -727,7 +727,7 @@ Follow the provided JSON format diligently.
 
   return output
 
-def generate_submodule_from_textbook(module_name, vectordb):
+def generate_content_from_textbook(module_name, vectordb):
   relevant_docs = vectordb.similarity_search(module_name)
   rel_docs = [doc.page_content for doc in relevant_docs]
   context = '\n'.join(rel_docs)
