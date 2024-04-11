@@ -11,6 +11,7 @@ import Issac from './views/Issac'
 import Profile from './views/Profile';
 import Issac2 from './views/Issac3D'
 import 'regenerator-runtime/runtime';
+import CourseDetails from './views/CourseDetails';
 import "./views/i18n"
 
 
@@ -21,6 +22,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/details" element={<CourseDetails />} />
         <Route path="/home" element={<Home />} />
         <Route path="/trending" element={<Trending />} />
         <Route path="/explore" element={<Modules />} />
