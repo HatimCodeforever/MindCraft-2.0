@@ -68,7 +68,7 @@ export default function Simple() {
     return (
         <>
             <Nav />
-            <Container maxW={'8xl'}>
+            <Container maxW={'7xl'}>
                 <Grid templateColumns={{ base: '1fr', md: '30% 70%' }} gap={{ base: 8, md: 20 }} py={{ base: 18, md: 24 }}>
                     <Stack spacing={20}>
                         <TableContainer gridColumn={{ base: '1 / -1', md: '1 / 2' }}>
