@@ -81,20 +81,21 @@ Module Name: {module_name}
 
     return output
 
-def generate_content(output, api_key_to_use):
-    prompt_content_gen = """I'm seeking your expertise on the subject of {sub_module_name}.\
-As a knowledgeable and educational chatbot, I'm confident in your ability to provide \
-a comprehensive and detailed explanation of this sub-module. Please generate a detailed and \
-informative description that covers essential aspects such as definition, \
-explanation, use cases, applications, and any other relevant details. \
-Ensure that the content exceeds 1000 words to offer a thorough understanding of the topic.
+def generate_content(output, module_name, api_key_to_use):
+    prompt_content_gen = """I'm seeking your expertise on the sub-module : {sub_module_name} which comes under the module: {module_name}.\
+As a knowledgeable educational assistant, I trust in your ability to provide \
+a comprehensive explanation of this sub-module. Think about the sub-module step by step and design the best way to explain the sub-module to a student. \
+Your response should cover essential aspects such as definition, in-depth examples, and any details crucial for understanding the topic. \
+Please generate quality content on the sub-module ensuring the response is sufficiently detailed covering all the relevant topics related to the sub-module.
 
-In your response, consider breaking down the information into subsections for clarity and make it detailed, elaborating every subsection. \
-If there are specific examples or real-world applications related to the subject, \
-please include them to enhance practical understanding. Additionally, conclude your \
-response by suggesting relevant URLs for further reading to empower users with \
-additional resources on the subject. Make sure your output is a valid json where the keys are the subject_name, \
-title_for_the_content, content, subsections (which should be a list of dictionaries with the keys - title and content) and urls (which should be a list).
+In your response, organize the information into subsections for clarity and elaborate on each subsection with suitable examples if and only if it is necessary. \
+Include specific hypothetical scenario-based examples (only if it is necessary) or important sub-sections related to the subject to enhance practical understanding. \
+If applicable, incorporate real-world examples, applications or use-cases to illustrate the relevance of the topic in various contexts. Additionally, incorporate anything \
+that helps the student to better understand the topic. \
+Ensure all the relevant aspects and topics related to the sub-module is covered in your response. \
+Conclude your response by suggesting relevant URLs for further reading to empower users with additional resources on the subject. \
+Please format your output as valid JSON, with the following keys: subject_name, title_for_the_content, content, subsections (a list of dictionaries with keys - title and content), and urls (a list).
+Be a good educational assistant and craft the best way to explain the sub-module.
 """
     all_content = []
     flag = 1 if api_key_to_use== 'first' else (2 if api_key_to_use=='second' else 3 )
@@ -107,7 +108,7 @@ title_for_the_content, content, subsections (which should be a list of dictionar
         completion = client.chat.completions.create(
                     model = 'gpt-3.5-turbo-1106',   
                     messages = [
-                        {'role':'user', 'content': prompt_content_gen.format(sub_module_name = val)},
+                        {'role':'user', 'content': prompt_content_gen.format(sub_module_name = val, module_name = module_name)},
                     ],
                     response_format = {'type':'json_object'},
                     seed = 42
@@ -726,7 +727,7 @@ Follow the provided JSON format diligently.
 
   return output
 
-def generate_submodule_from_textbook(module_name, vectordb):
+def generate_content_from_textbook(module_name, vectordb):
   relevant_docs = vectordb.similarity_search(module_name)
   rel_docs = [doc.page_content for doc in relevant_docs]
   context = '\n'.join(rel_docs)

@@ -125,7 +125,7 @@ const RecommendedCard: React.FC<CourseCardProps> = ({ moduleTopic, moduleSummary
         <Divider />
         <CardFooter>
           <ButtonGroup spacing='2' justifyContent="center">
-            <Button variant='solid' colorScheme='blue' bg="#9F7AEA">
+            <Button variant='solid' bg={'purple.400'} color={useColorModeValue('white', 'white')} _hover={{bg:useColorModeValue('purple.600', 'purple.600'), color: useColorModeValue('white', 'white'), transform: "scale(1.05)" }}>
               Get Started
             </Button>
             <Stack padding={2}>
