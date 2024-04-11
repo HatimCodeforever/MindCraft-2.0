@@ -45,26 +45,26 @@ function Home() {
     setInProp(true);
   }, [tabIndex]);
 
-  // useEffect(() => {
-  //   // Make an Axios request to fetch data when the component mounts
-  //   axios.get('/api/user_dashboard')
-  //     .then(response => {
-  //       const data = response.data;
-  //       // Assuming the response structure matches your needs
-  //       console.log("recommend", data.recommended_topics)
-  //       console.log("ongoing", data.user_ongoing_modules)
-  //       console.log("completed", data.user_completed_module)
-  //       setRecommendedCourses(data.recommended_topics);
-  //       setOngoingCourses(data.user_ongoing_modules);
-  //       setCompletedCourses(data.user_completed_module);
-  //     })
-  //     .catch(error => {
-  //       console.error(error);
-  //     })
-  //     .finally(() => {
-  //       setLoading(false); // Set loading to false once the data is fetched (success or error)
-  //     });
-  // }, []);
+  useEffect(() => {
+    // Make an Axios request to fetch data when the component mounts
+    axios.get('/api/user_dashboard')
+      .then(response => {
+        const data = response.data;
+        // Assuming the response structure matches your needs
+        console.log("recommend", data.recommended_topics)
+        console.log("ongoing", data.user_ongoing_modules)
+        console.log("completed", data.user_completed_module)
+        setRecommendedCourses(data.recommended_topics);
+        setOngoingCourses(data.user_ongoing_modules);
+        setCompletedCourses(data.user_completed_module);
+      })
+      .catch(error => {
+        console.error(error);
+      })
+      .finally(() => {
+        setLoading(false); // Set loading to false once the data is fetched (success or error)
+      });
+  }, []);
 
   const [trophies, setTrophies] = useState([
     { name: "Beginner", description: "Completed 1 course", earned: true },
@@ -77,26 +77,10 @@ function Home() {
     {
       moduleTopic: "Introduction to Machine Learning",
       moduleSummary: "Machine Learning (ML) is a subfield of artificial intelligence (AI) that focuses on developing algorithms and models that enable computers to learn from data and make predictions or decisions without explicit programming.",
-      chaptersCompleted: 2,
-      totalChapters: 5
     },
     {
-      moduleTopic: "Introduction to Machine Learning",
-      moduleSummary: "Machine Learning (ML) is a subfield of artificial intelligence (AI) that focuses on developing algorithms and models that enable computers to learn from data and make predictions or decisions without explicit programming.",
-      chaptersCompleted: 2,
-      totalChapters: 5
-    },
-    {
-      moduleTopic: "Introduction to Machine Learning",
-      moduleSummary: "Machine Learning (ML) is a subfield of artificial intelligence (AI) that focuses on developing algorithms and models that enable computers to learn from data and make predictions or decisions without explicit programming.",
-      chaptersCompleted: 2,
-      totalChapters: 5
-    },
-    {
-      moduleTopic: "Introduction to Machine Learning",
-      moduleSummary: "Machine Learning (ML) is a subfield of artificial intelligence (AI) that focuses on developing algorithms and models that enable computers to learn from data and make predictions or decisions without explicit programming.",
-      chaptersCompleted: 2,
-      totalChapters: 5
+      moduleTopic: "Introduction to Data Engineering",
+      moduleSummary: "Data engineering is the practice of designing and building systems for collecting, storing, and analysing data at scale.",
     },
   ];
 
@@ -115,8 +99,8 @@ function Home() {
   //   },
   // ];
 
-  const recommendedCourses =
-    { 'Machine Learning': 'This course covers the fundamentals of machine learning and its applications in various fields such as data science and artificial intelligence.', 'Big Data Analytics': 'This course focuses on analyzing large datasets using various tools and techniques to extract meaningful insights and make data-driven decisions.', 'Data Mining': 'This course explores techniques for discovering patterns and trends in large datasets, which is essential in the field of data science and machine learning.', 'Artificial Intelligence': 'This course delves into the principles and applications of artificial intelligence, including topics such as neural networks, natural language processing, and computer vision.', 'Statistical Analysis': 'This course provides a comprehensive overview of statistical methods for analyzing data, which is crucial in the field of data science and machine learning.', 'Deep Learning': 'This course covers advanced topics in machine learning, including deep neural networks, convolutional neural networks, and recurrent neural networks.', 'Predictive Modeling': 'This course focuses on developing predictive models using statistical and machine learning techniques to forecast future outcomes based on historical data.', 'Data Visualization': 'This course explores the principles and tools for creating visual representations of data, which is essential for communicating findings in data science and machine learning.', 'Python for Data Science': 'This course teaches the fundamentals of programming in Python and its applications in data science, including data manipulation, visualization, and machine learning.', 'SQL for Data Science': 'This course covers the fundamentals of SQL and its applications in data manipulation, querying databases, and extracting insights for data science purposes.' }
+  // const recommendedCourses =
+  //   { 'Machine Learning': 'This course covers the fundamentals of machine learning and its applications in various fields such as data science and artificial intelligence.', 'Big Data Analytics': 'This course focuses on analyzing large datasets using various tools and techniques to extract meaningful insights and make data-driven decisions.', 'Data Mining': 'This course explores techniques for discovering patterns and trends in large datasets, which is essential in the field of data science and machine learning.', 'Artificial Intelligence': 'This course delves into the principles and applications of artificial intelligence, including topics such as neural networks, natural language processing, and computer vision.', 'Statistical Analysis': 'This course provides a comprehensive overview of statistical methods for analyzing data, which is crucial in the field of data science and machine learning.', 'Deep Learning': 'This course covers advanced topics in machine learning, including deep neural networks, convolutional neural networks, and recurrent neural networks.', 'Predictive Modeling': 'This course focuses on developing predictive models using statistical and machine learning techniques to forecast future outcomes based on historical data.', 'Data Visualization': 'This course explores the principles and tools for creating visual representations of data, which is essential for communicating findings in data science and machine learning.', 'Python for Data Science': 'This course teaches the fundamentals of programming in Python and its applications in data science, including data manipulation, visualization, and machine learning.', 'SQL for Data Science': 'This course covers the fundamentals of SQL and its applications in data manipulation, querying databases, and extracting insights for data science purposes.' }
 
 
 
@@ -155,7 +139,7 @@ function Home() {
             <TabPanel>
               <Center><Heading mb={4}>Top Recommendations for You</Heading></Center>
               <Grid templateColumns={{ base: "repeat(1, 1fr)", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }} gap={6}>
-                {Object.entries(recommendedCourses).map(([moduleTopic, moduleSummary]) => (
+                {Object.entries(recommendCourses).map(([moduleTopic, moduleSummary]) => (
                   <SlideFade in={inProp} transition={{ enter: { duration: 0.7 } }} offsetY='50px' key={moduleTopic}>
                     <RecommendedCard key={moduleTopic} moduleTopic={moduleTopic} moduleSummary={moduleSummary} />
                   </SlideFade>
@@ -165,10 +149,15 @@ function Home() {
             <TabPanel style={{ display: 'flex', flexDirection: 'row' }}>
               {ongoingCourses_ex.map((course, index) => (
                 <SlideFade in={inProp} transition={{ enter: { duration: 0.7 } }} offsetY='50px' key={course.moduleTopic}>
-                  <WorkingCard title={course.moduleTopic} content={course.moduleSummary} activeSteps={activeStepsList[index]} />
+                  <WorkingCard
+                    initialLessonName={course.moduleTopic}
+                    initialProgress={50}
+                    moduleSummary={course.moduleSummary} // Pass the module summary
+                  />
                 </SlideFade>
               ))}
             </TabPanel>
+
             <TabPanel>
               {completedCourses.map((course) => (
                 <SlideFade in={inProp} transition={{ enter: { duration: 0.7 } }} offsetY='50px' key={course.moduleTopic}>

@@ -1,93 +1,56 @@
 import React from 'react';
-import {
-    Card,
-    CardHeader,
-    CardBody,
-    CardFooter,
-    Heading,
-    Text,
-    Stack,
-    Divider,
-    ButtonGroup,
-    Button,
-    Flex,
-    useColorMode,
-    useColorModeValue,
-} from '@chakra-ui/react';
-import { HiAcademicCap } from 'react-icons/hi';
-import { TfiArrowTopRight } from 'react-icons/tfi';
-import { useNavigate } from 'react-router-dom';
-import { MdPause } from 'react-icons/md';
-import { Stepper } from 'react-form-stepper';
+import { Box, Text, Button, VStack, Heading } from '@chakra-ui/react';
 
-interface CardProps {
-    title: string;
-    content: string;
+interface WorkingCardProps {
+    initialLessonName?: string;
+    initialProgress?: number;
+    moduleSummary?: string; // Add this line
 }
-const stepperStyle = {
-    "& .active-step": {
-       color: 'purple', // Change 'purple' to the desired color for active step
-    },
-    "& .completed-step": {
-       color: 'purple', // Change 'purple' to the desired color for completed step
-    },
-    "& .inactive-step": {
-       color: 'lightgray', // Change 'lightgray' to the desired color for inactive step
-    },
-   };
 
-const WorkingCard: React.FC<CardProps> = ({ title, content, chaptersCompleted, totalChapters, activeSteps }) => {
-    const navigate = useNavigate();
-    const handleResumeLearning = () => {
-        // Save title to localStorage
+// Custom Progress Bar Component
+const CustomProgressBar: React.FC<{ value: number }> = ({ value }) => {
+    const progressPercentage = value;
+    return (
+        <Box width="100%" height="20px" bg="gray.200" borderRadius="md">
+            <Box
+                width={`${progressPercentage}%`}
+                height="100%"
+                bg="purple.400"
+                borderRadius="md"
+            />
+        </Box>
+    );
+};
+
+const WorkingCard: React.FC<WorkingCardProps> = ({
+    initialLessonName = '',
+    initialProgress = 0,
+    moduleSummary = '', 
+}) => {
+    const [lessonName, setLessonName] = React.useState(initialLessonName);
+    const [progress, setProgress] = React.useState(initialProgress);
+
+    const handleLessonNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setLessonName(event.target.value);
+    };
+
+    // Example function to update progress
+    const updateProgress = (newProgress: number) => {
+        setProgress(newProgress);
     };
 
     return (
-        <Card
-            boxShadow="dark-lg"
-            width="300px"
-            mt={8}
-            mr={4}
-            ml={4}
-            bg={useColorModeValue('purple.200', 'purple.800')}
-        >
-            <CardHeader>
-                <Flex justify="center" align="center">
-                    <HiAcademicCap size={48} />
-                </Flex>
-            </CardHeader>
-            <CardBody>
-                <Stack spacing="3">
-                    <Text className='feature-heading' fontSize={"lg"} textAlign={'center'}><b>{title}</b></Text>
-                    <Text className='content' textAlign={"justify"} >{content as string}</Text>
-                </Stack>
-            </CardBody>
-            <Divider/>
-            <Stepper
-            steps={[{ label: 'Quiz 1' }, { label: 'Quiz 2' }, { label: 'Quiz 3' }]}
-            activeStep={activeSteps}
-            styleConfig={{
-                activeBgColor: '#527853', // Background color of the active step
-                completedBgColor: '#527853', // Background color of the completed step
-                inactiveBgColor: '#D04848', // Background color of the inactive step
-                activeTextColor: 'white', // Text color of the active step
-                completedTextColor: 'white', // Text color of the completed step
-                inactiveTextColor: 'white', // Text color of the inactive step
-             }}
-        />
-            <Flex justify="center" align="center">
-                <CardFooter>
-                    <ButtonGroup spacing="2">
-                        <Button bg={'purple.500'} textColor={'white'} _hover={{ bg: useColorModeValue('purple.800', 'purple.800'), color: useColorModeValue('white', 'white'), transform: "scale(1.05)" }} variant="outline" onClick={handleResumeLearning} size={'md'}>
-                            Continue Learning
-                            <svg width="20" height="20" style={{ margin: '8px' }}>
-                                <polygon points="10,0 0,20 20,20" fill="white" transform="rotate(90 10 10)" />
-                            </svg>
-                        </Button>
-                    </ButtonGroup>
-                </CardFooter>
-            </Flex>
-        </Card>
+        <Box bg="white" p={4} borderRadius="md" boxShadow="md" margin={6} width={500} height={350}>
+
+            <VStack spacing={4} align="start">
+                <Heading size="md">Jump back in</Heading>
+                <Text>Course {progress}% Completed</Text>
+                <CustomProgressBar value={progress} />
+                <Text>Current Lesson: {lessonName}</Text>
+                <Text>Module Summary: {moduleSummary}</Text> 
+                <Button colorScheme='purple'>Continue Learning</Button>
+            </VStack>
+        </Box>
     );
 };
 

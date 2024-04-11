@@ -20,7 +20,6 @@ import { StarIcon } from '@chakra-ui/icons';
 interface CourseCardProps {
  moduleTopic: string;
  moduleSummary: string;
- userProfileImage: string; // Add a prop for the user profile image
 }
 
 const RecommendedCard: React.FC<CourseCardProps> = ({ moduleTopic, moduleSummary }) => {
