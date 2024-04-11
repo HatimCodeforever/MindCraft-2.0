@@ -658,15 +658,22 @@ def query_module(module_id, source_language, websearch):
     if module.submodule_content is not None:
         trans_submodule_content = translate_submodule_content(module.submodule_content, source_language)
         print(f"Translated submodule content: {trans_submodule_content}")
-        return jsonify({"message": "Query successful", "images": module.image_urls, "content": trans_submodule_content, "response": True}), 200
+        return jsonify({"message": "Query successful", "images": module.image_urls,"videos": module.video_urls, "content": trans_submodule_content, "response": True}), 200
     
-    images = module_image_from_web(module.module_name)
+    # images = module_image_from_web(module.module_name)
     # if submodules are not generated, generate and save them in the database
     with ThreadPoolExecutor() as executor:
         if websearch == "true":
             submodules = generate_submodules_from_web(module.module_name)
             print(submodules)
             keys_list = list(submodules.keys())
+            images_list=[]
+            video_list=[]
+            for key in keys_list:
+                images = module_image_from_web(submodules[key])
+                video = module_videos_from_web(submodules[key])
+                images_list.append(images)
+                video_list.append(video)
             submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
             submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
             future_content_one = executor.submit(generate_content_from_web, submodules_split_one, 'first')
@@ -676,6 +683,13 @@ def query_module(module_id, source_language, websearch):
             submodules = generate_submodules(module.module_name)
             print(submodules)
             keys_list = list(submodules.keys())
+            images_list=[]
+            video_list=[]
+            for key in keys_list:
+                images = module_image_from_web(submodules[key])
+                video = module_videos_from_web(submodules[key])
+                images_list.append(images)
+                video_list.append(video)
             submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
             submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
             future_content_one = executor.submit(generate_content, submodules_split_one, 'first')
@@ -688,7 +702,8 @@ def query_module(module_id, source_language, websearch):
     content = content_one + content_two
 
     module.submodule_content = content
-    module.image_urls = images
+    module.image_urls = images_list
+    module.video_urls = video_list
     db.session.commit()
 
     # add module to ongoing modules for user
@@ -700,7 +715,7 @@ def query_module(module_id, source_language, websearch):
     trans_submodule_content = translate_submodule_content(content, source_language)
     print(f"Translated submodule content: {trans_submodule_content}")
     
-    return jsonify({"message": "Query successful", "images": module.image_urls, "content": trans_submodule_content, "response": True}), 200
+    return jsonify({"message": "Query successful", "images": module.image_urls,"videos": module.video_urls ,"content": trans_submodule_content, "response": True}), 200
 
 
 # download route --> generate pdf for module summary and module content
