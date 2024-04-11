@@ -665,62 +665,30 @@ def generate_recommendations(user_course, user_interest, past_module_names = Non
 
     return output
 
-def generate_module_from_textbook(topic, level, vectordb):
+def generate_module_from_textbook(topic, vectordb):
   relevant_docs = vectordb.similarity_search('Important modules or topics on '+ topic)
   rel_docs = [doc.page_content for doc in relevant_docs]
   context = '\n'.join(rel_docs)
-  print('CONTEXT:\n'+context+'\n\n\n')
-  module_generation_prompt = """You are an educational assistant with knowledge in various domains. You will be provided with context from a textbook \
-  and your task is to design a course to complete all and ONLY the major concepts in the textbook. Your main goal is to craft a suitable number of {level} Level \
-  educational modules with brief summaries based on a given topic and the context provided to you. \
-  Ensure the module names are relevant to the topic and provide a concise summary for each using the context. \
-  You MUST only use the knowledge provided in the context to craft the module names and summaries.
-  Format the output in JSON, with each key representing a complete module name and its corresponding value being the brief summary.
+  module_generation_prompt = """You are an educational assistant with knowledge in various domains. A student is seeking your expertise \
+  to learn a given topic. You will be provided with context from their textbook \
+  and your task is to design course modules to complete all the major concepts about the topic in the textbook. Craft a suitable number of \
+  module names for the student to learn the topic they wish. \
+  Ensure the module names are relevant to the topic using the context provided to you. \
+  You MUST only use the knowledge provided in the context to craft the module names. \
+  The output should be in json format where each key corresponds to the \
+  sub-module number and the values are the sub-module names. Do not consider summary or any irrelevant topics as module names.
 
 Topic: {topic}
 
 Context: {context}
 
-Follow the provided JSON format diligently, incorporating information from the context to generate the summaries and ensuring the modules are appropriately {level} in difficulty."""
+Follow the provided JSON format diligently."""
 
-  client = OpenAI(api_key=openai_api_key1)
+  client = OpenAI()
   completion = client.chat.completions.create(
           model = 'gpt-3.5-turbo-1106',
           messages = [
-              {'role':'user', 'content': module_generation_prompt.format(topic= topic, context = context, level = level)},
-          ],
-          response_format = {'type':'json_object'},
-          seed = 42,
-)
-  output = ast.literal_eval(completion.choices[0].message.content)
-
-  return output
-
-def generate_submodule_from_textbook(module_name, vectordb):
-  relevant_docs = vectordb.similarity_search(module_name)
-  rel_docs = [doc.page_content for doc in relevant_docs]
-  context = '\n'.join(rel_docs)
-  print('CONTEXT:\n'+context+'\n\n\n')
-  sub_module_generation_prompt = """You are an educational assistant with knowledge in various domains. \
-  You will be provided with context from a textbook \
-  and your task is to design a course to complete all and only the major concepts of the module, using the context from the textbook. \
-  Your main goal is to craft a suitable number of \"
-  'Sub-Modules' names based on the given module name and the context provided to you. \
-   The output should be in json format where each key corresponds to the \
-   sub-module number and the values are the sub-module names. Do not include summary or any other irrelevant topics
-
-Module Name: {module_name}
-
-Context: {context}
-
-Follow the provided JSON format diligently.
-"""
-
-  client = OpenAI(api_key=openai_api_key1)
-  completion = client.chat.completions.create(
-          model = 'gpt-3.5-turbo-1106',
-          messages = [
-              {'role':'user', 'content': sub_module_generation_prompt.format(module_name = module_name, context = context)},
+              {'role':'user', 'content': module_generation_prompt.format(topic= topic, context = context)},
           ],
           response_format = {'type':'json_object'},
           seed = 42,
