@@ -9,9 +9,9 @@ import { faDownload, faFileInvoice } from '@fortawesome/free-solid-svg-icons';
 import Quiz from '../components/Quiz';
 import VoiceQuiz from '../components/VoiceQuiz';
 import { useSessionCheck } from "./useSessionCheck";
-import Typewriter from 'typewriter-effect';
 import ChatWidget from '../components/Chat_widget';
 import { useTranslation } from "react-i18next";
+import Slideshow from './Sildeshow';
 
 interface Subsection {
   title: string;
@@ -231,7 +231,7 @@ const Sidebar = ({ data, setSelectedSubject, isLoading, setCurrentIndex, setQuiz
 
 
 
-const ContentSec = ({ subject, isLoading, images, index, data_len, quiz, quiz2, quiz3, trans }: { subject: Subject; isLoading: boolean; images: string[]; index: number; data_len: number, quiz: any, quiz2: any, quiz3: any, trans: any }) => {
+const ContentSec = ({ subject, isLoading, images, index, data_len, quiz, quiz2, quiz3, trans, videos }: { subject: Subject; isLoading: boolean; images: string[]; index: number; data_len: number, quiz: any, quiz2: any, quiz3: any, trans: any, videos: string[]; }) => {
   const toast = useToast();
   const [isSpinnerLoading, setIsSpinnerLoading] = useState(false);
   const [audioSrc, setAudioSrc] = useState(null);
@@ -334,12 +334,12 @@ const ContentSec = ({ subject, isLoading, images, index, data_len, quiz, quiz2, 
           {/* <Text textAlign="justify" className='content' mb={10} fontSize={"xl"} overflowWrap="break-word">{subject.content}</Text> */}
           <TypingContentAnimation text={subject.content} />
           <Center>
-            <Image boxSize={{ base: '50px', md: '100px', lg: '500px' }} src={images[index]} alt="Subject Image" mb={5} mt={5} />
+            <Slideshow images={images[index]} />
           </Center>
           <VStack spacing={8} mb={8}>
             {subject.subsections.map((section, index) => (
               <Box key={index} width={"100%"}>
-                <TypingHeadingAnimation text={section.title}/>
+                <TypingHeadingAnimation text={section.title} />
                 {/* <Text fontSize="3xl" className='feature-heading' mb={2}><b>{section.title}</b></Text> */}
                 {/* <Text className='content' fontSize={"lg"} textAlign="justify" overflowWrap="break-word">{section.content}</Text> */}
                 <TypingContentAnimation text={section.content} />
@@ -360,8 +360,20 @@ const ContentSec = ({ subject, isLoading, images, index, data_len, quiz, quiz2, 
               <Text>No Links available</Text>
             )}
           </List>
-
-
+          <Text fontSize="3xl" className='feature-heading'><b>{trans('Links of Videos:')}</b></Text>
+          <List mb={5}>
+            {Array.isArray(videos[index]) ? (
+              videos[index].map((url, index) => (
+                <ListItem key={index}>
+                  <Link fontSize={20} href={url} isExternal color={useColorModeValue('purple.600', 'gray.500')}>
+                    {url}
+                  </Link>
+                </ListItem>
+              ))
+            ) : (
+              <Text>No Links available</Text>
+            )}
+          </List>
 
           <Text fontSize="3xl" className='feature-heading'>{trans('Want to Learn Offline? Download the whole Course here:')}</Text>
           <Button
@@ -420,6 +432,7 @@ const Content = () => {
   const [data, setData] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState();
   const [images, setImages] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quizdata, setQuizData] = useState(null);
@@ -439,6 +452,7 @@ const Content = () => {
       try {
         const response = await axios.get(`/api/query2/${moduleid}/${source_lang}/${websearch}`);
         setImages(response.data.images);
+        setVideos(response.data.videos);
         setData(response.data.content);
         setSelectedSubject(response.data.content.length > 0 ? response.data.content[0] : null);
       } catch (error) {
@@ -475,6 +489,7 @@ const Content = () => {
             subject={selectedSubject}
             isLoading={isLoading}
             images={images}
+            videos={videos}
             data_len={data.length}
             index={currentIndex}
             trans={t}

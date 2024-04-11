@@ -127,7 +127,7 @@ class Module(db.Model):
     summary = db.Column(db.String(500), nullable=False)
     submodule_content = db.Column(db.JSON, nullable=True)
     image_urls = db.Column(db.JSON, nullable=True)
-    
+    video_urls = db.Column(db.JSON, nullable=True)
     module_comp_association = db.relationship('CompletedModule', back_populates='module')
     completed_by = association_proxy('module_comp_association', 'user')
 
