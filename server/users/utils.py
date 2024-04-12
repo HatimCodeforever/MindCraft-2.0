@@ -118,7 +118,7 @@ Be a good educational assistant and craft the best way to explain the sub-module
         content_output = ast.literal_eval(completion.choices[0].message.content)
         content_output['subject_name'] = val
         print(content_output)
-        all_content.append(ast.literal_eval(completion.choices[0].message.content))
+        all_content.append(content_output)
     return all_content
 
 def generate_module_summary_from_web(topic, level):
