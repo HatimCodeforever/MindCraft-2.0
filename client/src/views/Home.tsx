@@ -45,26 +45,26 @@ function Home() {
     setInProp(true);
   }, [tabIndex]);
 
-  // useEffect(() => {
-  //   // Make an Axios request to fetch data when the component mounts
-  //   axios.get('/api/user_dashboard')
-  //     .then(response => {
-  //       const data = response.data;
-  //       // Assuming the response structure matches your needs
-  //       console.log("recommend", data.recommended_topics)
-  //       console.log("ongoing", data.user_ongoing_modules)
-  //       console.log("completed", data.user_completed_module)
-  //       setRecommendedCourses(data.recommended_topics);
-  //       setOngoingCourses(data.user_ongoing_modules);
-  //       setCompletedCourses(data.user_completed_module);
-  //     })
-  //     .catch(error => {
-  //       console.error(error);
-  //     })
-  //     .finally(() => {
-  //       setLoading(false); // Set loading to false once the data is fetched (success or error)
-  //     });
-  // }, []);
+  useEffect(() => {
+    // Make an Axios request to fetch data when the component mounts
+    axios.get('/api/user_dashboard')
+      .then(response => {
+        const data = response.data;
+        // Assuming the response structure matches your needs
+        console.log("recommend", data.recommended_topics)
+        console.log("ongoing", data.user_ongoing_modules)
+        console.log("completed", data.user_completed_module)
+        setRecommendedCourses(data.recommended_topics);
+        setOngoingCourses(data.user_ongoing_modules);
+        setCompletedCourses(data.user_completed_module);
+      })
+      .catch(error => {
+        console.error(error);
+      })
+      .finally(() => {
+        setLoading(false); // Set loading to false once the data is fetched (success or error)
+      });
+  }, []);
 
   const [trophies, setTrophies] = useState([
     { name: "Beginner", description: "Completed 1 course", earned: true },

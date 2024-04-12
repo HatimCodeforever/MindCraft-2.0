@@ -94,7 +94,8 @@ If applicable, incorporate real-world examples, applications or use-cases to ill
 that helps the student to better understand the topic. \
 Ensure all the relevant aspects and topics related to the sub-module is covered in your response. \
 Conclude your response by suggesting relevant URLs for further reading to empower users with additional resources on the subject. \
-Please format your output as valid JSON, with the following keys: subject_name, title_for_the_content, content, subsections (a list of dictionaries with keys - title and content), and urls (a list).
+Please format your output as valid JSON, with the following keys: title_for_the_content (suitable title for the sub-module), \
+content(an introduction of the sub-module), subsections (a list of dictionaries with keys - title and content), and urls (a list).
 Be a good educational assistant and craft the best way to explain the sub-module.
 """
     all_content = []
