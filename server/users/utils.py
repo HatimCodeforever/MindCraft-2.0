@@ -94,7 +94,7 @@ If applicable, incorporate real-world examples, applications or use-cases to ill
 that helps the student to better understand the topic. \
 Ensure all the relevant aspects and topics related to the sub-module is covered in your response. \
 Conclude your response by suggesting relevant URLs for further reading to empower users with additional resources on the subject. \
-Please format your output as valid JSON, with the following keys: subject_name, title_for_the_content, content, subsections (a list of dictionaries with keys - title and content), and urls (a list).
+Please format your output as valid JSON, with the following keys: title_for_the_content, content, subsections (a list of dictionaries with keys - title and content), and urls (a list).
 Be a good educational assistant and craft the best way to explain the sub-module.
 """
     all_content = []
@@ -187,7 +187,7 @@ def generate_content_from_web(sub_module_name, api_key_to_use):
     If there are specific examples or real-world applications related to the subject, \
     please include them to enhance practical understanding. Additionally, conclude your \
     response by suggesting relevant URLs for further reading to empower users with \
-    additional resources on the subject. Make sure your output is a valid json where the keys are the subject_name, \
+    additional resources on the subject. Make sure your output is a valid json where the keys are the \
     title_for_the_content, content, subsections (which should be a list of dictionaries with the keys - title and content) and urls (which should be a list).
     """
     flag = 1 if api_key_to_use== 'first' else (2 if api_key_to_use=='second' else 3 )
