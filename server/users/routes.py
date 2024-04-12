@@ -681,8 +681,8 @@ def course_overview(module_id, source_language, websearch):
                 video_list.append(video)
             submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
             submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
-            future_content_one = executor.submit(generate_content_from_web, submodules_split_one, 'first')
-            future_content_two = executor.submit(generate_content_from_web, submodules_split_two, 'second')
+            future_content_one = executor.submit(generate_content_from_web, submodules_split_one, module.module_name, 'first')
+            future_content_two = executor.submit(generate_content_from_web, submodules_split_two, module.module_name, 'second')
 
         else:
             submodules = generate_submodules(module.module_name)

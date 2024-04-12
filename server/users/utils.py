@@ -82,7 +82,7 @@ Module Name: {module_name}
     return output
 
 def generate_content(output, module_name, api_key_to_use):
-    prompt_content_gen = """I'm seeking your expertise on the sub-module : {sub_module_name} which comes under the module: {module_name}.\
+    prompt_content_gen = """I'm seeking your expertise on the sub-module : {sub_module_name} \which comes under the module: {module_name}.\
 As a knowledgeable educational assistant, I trust in your ability to provide \
 a comprehensive explanation of this sub-module. Think about the sub-module step by step and design the best way to explain the sub-module to a student. \
 Your response should cover essential aspects such as definition, in-depth examples, and any details crucial for understanding the topic. \
@@ -125,17 +125,18 @@ def generate_module_summary_from_web(topic, level):
     tavily_client = TavilyClient(api_key=tavily_api_key1)
     search_result = tavily_client.get_search_context(topic, search_depth="advanced", max_tokens=4000)
 
-    module_generation_prompt = """As an educational assistant, your goal is to craft 4-6 {level} Level \
-    educational module names and brief summaries based on a given topic and search results. \
-    Ensure the module names are relevant to the topic and provide a concise summary for each. \
-    Format the output in JSON, with each key representing a complete module name and its corresponding value being the brief summary.
+    module_generation_prompt = """As an educational assistant, your goal is to craft a suitable number of {level} Level \
+  educational module names and brief summaries based on a given topic and search results. \
+  Ensure the module names are relevant to the topic and provide a concise summary for each. \
+  Format the output in JSON, with each key representing a complete module name and its corresponding value being the brief summary.
 
-    Topic: {topic}
+Topic: {topic}
 
-    Search Results: {search_result}
+Search Results: {search_result}
 
-    Follow the provided JSON format diligently, incorporating information from the search results into the summaries and ensuring the modules are appropriately {level} in difficulty."""
-
+Follow the provided JSON format diligently, incorporating information from the search results into \
+the summaries and ensuring the modules are appropriately {level} in difficulty.
+"""
     client = OpenAI(api_key=openai_api_key1)
     completion = client.chat.completions.create(
             model = 'gpt-3.5-turbo-1106',
@@ -154,16 +155,16 @@ def generate_submodules_from_web(module_name):
     search_result = tavily_client.get_search_context(module_name, search_depth="advanced", max_tokens=4000)
 
     sub_module_generation_prompt= """You are an educational assistant named ISAAC. \
-    You will be provided with a module name and information on that module from the internet.
-    Your task is to generate 6 'Sub-Modules' names that are related to the modules.  \
-    The output should be in json format where each key corresponds to the \
-    sub-module number and the values are the sub-module names.
+You will be provided with a module name and information on that module from the internet.
+Your task is to generate a suitable number of 'Sub-Modules' names that are related to the modules.  \
+The output should be in json format where each key corresponds to the \
+sub-module number and the values are the sub-module names.
 
-    Module Name: {module_name}
+Module Name: {module_name}
 
-    Search Results: {search_result}
+Search Results: {search_result}
 
-    Follow the provided JSON format diligently.
+Follow the provided JSON format diligently.
     """
 
     client = OpenAI(api_key=openai_api_key1)
@@ -178,20 +179,26 @@ def generate_submodules_from_web(module_name):
     output = ast.literal_eval(completion.choices[0].message.content)
     return output
 
-def generate_content_from_web(sub_module_name, api_key_to_use):
-    content_generation_prompt = """I'm seeking your expertise on the subject of {sub_module_name}. You have access to the subject's information which you have to use while generating \
-    a detailed and informative description that covers essential aspects such as definition, \
-    explanation, use cases, applications, and any other relevant details. \
-    Ensure that the content exceeds 800 words to offer a thorough understanding of the topic.
+def generate_content_from_web(sub_module_name, module_name, api_key_to_use):
+    content_generation_prompt = """I'm seeking your expertise on the subject of {sub_module_name} which comes under the module: {module_name}.\
+As a knowledgeable educational assistant, I trust in your ability to provide \
+a comprehensive explanation of this sub-module. Think about the sub-module step by step and design the best way to explain the sub-module to a student. \
+Your response should cover essential aspects such as definition, in-depth examples, and any details crucial for understanding the topic. \
+You have access to the subject's information which you have to use while generating the educational content. \
+Please generate quality content on the sub-module ensuring the response is sufficiently detailed covering all the relevant topics related to the sub-module.
 
-    SUBJECT INFORMATION : {search_result}
+SUBJECT INFORMATION : ```{search_result}```
 
-    In your response, consider breaking down the information into subsections for clarity. \
-    If there are specific examples or real-world applications related to the subject, \
-    please include them to enhance practical understanding. Additionally, conclude your \
-    response by suggesting relevant URLs for further reading to empower users with \
-    additional resources on the subject. Make sure your output is a valid json where the keys are the \
-    title_for_the_content, content, subsections (which should be a list of dictionaries with the keys - title and content) and urls (which should be a list).
+--------------------------------
+In your response, organize the information into subsections for clarity and elaborate on each subsection with suitable examples if and only if it is necessary. \
+Include specific hypothetical scenario-based examples (only if it is necessary) or important sub-sections related to the subject to enhance practical understanding. \
+If applicable, incorporate real-world examples, applications or use-cases to illustrate the relevance of the topic in various contexts. Additionally, incorporate anything \
+that helps the student to better understand the topic. \
+Ensure all the relevant aspects and topics related to the sub-module is covered in your response. \
+Conclude your response by suggesting relevant URLs for further reading to empower users with additional resources on the subject. \
+Please format your output as valid JSON, with the following keys: title_for_the_content (suitable title for the sub-module), \
+content(an introduction of the sub-module), subsections (a list of dictionaries with keys - title and content), and urls (a list).
+Be a good educational assistant and craft the best way to explain the sub-module.
     """
     flag = 1 if api_key_to_use== 'first' else (2 if api_key_to_use=='second' else 3 )
     print(f'THREAD {flag} RUNNING...')
@@ -207,7 +214,7 @@ def generate_content_from_web(sub_module_name, api_key_to_use):
         completion = client.chat.completions.create(
                 model = 'gpt-3.5-turbo-1106',
                 messages = [
-                    {'role':'user', 'content': content_generation_prompt.format(sub_module_name = val, search_result = search_result)},
+                    {'role':'user', 'content': content_generation_prompt.format(sub_module_name = val, search_result = search_result, module_name=module_name)},
                 ],
                 response_format = {'type':'json_object'},
                 seed = 42,
