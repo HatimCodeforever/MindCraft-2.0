@@ -37,7 +37,7 @@ const MyCard: React.FC<CardProps> = ({ title, content, websearch, module_ids,sou
     localStorage.setItem('moduleid', moduleid);
     localStorage.setItem('source_lang', source_language);
     localStorage.setItem('websearch', websearch2);
-    navigate('/content');
+    navigate('/details');
   };
 
   return (

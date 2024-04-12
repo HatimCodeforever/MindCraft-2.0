@@ -637,12 +637,10 @@ def query_topic(topicname,level,websearch,source_lang):
 
     return jsonify({"message": "Query successful", "topic_id":topic.topic_id, "topic":trans_topic_name, "source_language":source_language, "module_ids":module_ids, "content": trans_module_summary_content, "response":True}), 200
 
-
-# module query --> generate mutlimodal content (with images) for submodules in a module
-
-@users.route('/query2/<int:module_id>/<string:source_language>/<string:websearch>', methods=['GET'])
+#course overview route
+@users.route('/query2/course-overview/<int:module_id>/<string:source_language>/<string:websearch>', methods=['GET'])
 @cross_origin(supports_credentials=True)
-def query_module(module_id, source_language, websearch):
+def course_overview(module_id, source_language, websearch):
     # check if user is logged in
     user_id = session.get("user_id", None)
     if user_id is None:
@@ -656,10 +654,16 @@ def query_module(module_id, source_language, websearch):
     
     # check if submodules are saved in the database for the given module_id
     module = Module.query.get(module_id)
+    module_info = {}
+    module_info['module_name']=module.module_name
+    module_info['summary']=module.summary
+    module_info['level']=module.level
+
     if module.submodule_content is not None:
+        print("language",source_language)
         trans_submodule_content = translate_submodule_content(module.submodule_content, source_language)
         print(f"Translated submodule content: {trans_submodule_content}")
-        return jsonify({"message": "Query successful", "images": module.image_urls,"videos": module.video_urls, "content": trans_submodule_content, "response": True}), 200
+        return jsonify({"message": "Query successful","module": module_info ,"images": module.image_urls,"videos": module.video_urls, "content": trans_submodule_content, "response": True}), 200
     
     # images = module_image_from_web(module.module_name)
     # if submodules are not generated, generate and save them in the database
@@ -716,8 +720,32 @@ def query_module(module_id, source_language, websearch):
     trans_submodule_content = translate_submodule_content(content, source_language)
     print(f"Translated submodule content: {trans_submodule_content}")
     
-    return jsonify({"message": "Query successful", "images": module.image_urls,"videos": module.video_urls ,"content": trans_submodule_content,"sub_modules": submodules, "response": True}), 200
+    return jsonify({"message": "Query successful","module": module_info ,"images": module.image_urls,"videos": module.video_urls ,"content": trans_submodule_content,"sub_modules": submodules, "response": True}), 200
 
+
+# module query --> generate mutlimodal content (with images) for submodules in a module
+
+@users.route('/query2/<int:module_id>/<string:source_language>/<string:websearch>', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def query_module(module_id, source_language, websearch):
+    # check if user is logged in
+    user_id = session.get("user_id", None)
+    if user_id is None:
+        return jsonify({"message": "User not logged in", "response": False}), 401
+    
+    # check if user exists
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({"message": "User not found", "response": False}), 404
+    session["module_id"] = module_id
+    
+    # check if submodules are saved in the database for the given module_id
+    module = Module.query.get(module_id)
+    if module.submodule_content is not None:
+        trans_submodule_content = translate_submodule_content(module.submodule_content, source_language)
+        print(f"Translated submodule content: {trans_submodule_content}")
+    return jsonify({"message": "Query successful", "images": module.image_urls,"videos": module.video_urls, "content": trans_submodule_content, "response": True}), 200
+    
 
 # download route --> generate pdf for module summary and module content
 # currently generate pdf for latin and devanagari scripts 
