@@ -94,7 +94,8 @@ If applicable, incorporate real-world examples, applications or use-cases to ill
 that helps the student to better understand the topic. \
 Ensure all the relevant aspects and topics related to the sub-module is covered in your response. \
 Conclude your response by suggesting relevant URLs for further reading to empower users with additional resources on the subject. \
-Please format your output as valid JSON, with the following keys: title_for_the_content, content, subsections (a list of dictionaries with keys - title and content), and urls (a list).
+Please format your output as valid JSON, with the following keys: title_for_the_content (suitable title for the sub-module), \
+content(an introduction of the sub-module), subsections (a list of dictionaries with keys - title and content), and urls (a list).
 Be a good educational assistant and craft the best way to explain the sub-module.
 """
     all_content = []
@@ -114,7 +115,9 @@ Be a good educational assistant and craft the best way to explain the sub-module
                     seed = 42
         )
         print("Thread 1: Module Generated: ",key,"!")   
-        print(ast.literal_eval(completion.choices[0].message.content))
+        content_output = ast.literal_eval(completion.choices[0].message.content)
+        content_output['subject_name'] = val
+        print(content_output)
         all_content.append(ast.literal_eval(completion.choices[0].message.content))
     return all_content
 
