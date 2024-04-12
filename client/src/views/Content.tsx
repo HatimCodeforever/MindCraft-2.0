@@ -45,7 +45,7 @@ const TypingHeadingAnimation = ({ text }) => {
     return () => clearInterval(interval);
   }, [text]);
 
-  return <Text className='feature-heading' fontSize="3xl" textAlign="justify" overflowWrap="break-word">{typedText}</Text>;
+  return <Text className='feature-heading' fontSize="3xl" textAlign="justify" overflowWrap="break-word"><b>{typedText}</b></Text>;
 };
 
 const TypingContentAnimation = ({ text }) => {
@@ -235,6 +235,22 @@ const ContentSec = ({ subject, isLoading, images, index, data_len, quiz, quiz2, 
   const toast = useToast();
   const [isSpinnerLoading, setIsSpinnerLoading] = useState(false);
   const [audioSrc, setAudioSrc] = useState(null);
+  let firstHalf = [];
+  let secondHalf = [];
+  let subsectionfirstHalf = [];
+  let subsectionsecondHalf = [];
+
+  // Check if images[index] is defined and not empty
+  if (images[index] && images[index].length > 0) {
+    firstHalf = images[index].slice(0, Math.ceil(images[index].length / 2));
+    secondHalf = images[index].slice(Math.ceil(images[index].length / 2));
+  }
+
+  // Check if subject.subsections is defined and not empty
+  if (subject && subject.subsections && subject.subsections.length > 0) {
+    subsectionfirstHalf = subject.subsections.slice(0, Math.ceil(subject.subsections.length / 2));
+    subsectionsecondHalf = subject.subsections.slice(Math.ceil(subject.subsections.length / 2));
+  }
   useEffect(() => {
     setAudioSrc(null);
   }, [subject]);
@@ -247,10 +263,6 @@ const ContentSec = ({ subject, isLoading, images, index, data_len, quiz, quiz2, 
       </Box>
     );
   }
-  const getImageUrl = (index: number): string => {
-    // Use the modulo operator to cycle through the images array
-    return images[index % images.length];
-  };
 
   const fetchAudio = async (content) => {
     try {
@@ -334,18 +346,32 @@ const ContentSec = ({ subject, isLoading, images, index, data_len, quiz, quiz2, 
           {/* <Text textAlign="justify" className='content' mb={10} fontSize={"xl"} overflowWrap="break-word">{subject.content}</Text> */}
           <TypingContentAnimation text={subject.content} />
           <Center>
-            <Slideshow images={images[index]} />
+            <Slideshow images={firstHalf} />
           </Center>
           <VStack spacing={8} mb={8}>
-            {subject.subsections.map((section, index) => (
+            {subsectionfirstHalf.map((section, index) => (
               <Box key={index} width={"100%"}>
                 <TypingHeadingAnimation text={section.title} />
-                {/* <Text fontSize="3xl" className='feature-heading' mb={2}><b>{section.title}</b></Text> */}
-                {/* <Text className='content' fontSize={"lg"} textAlign="justify" overflowWrap="break-word">{section.content}</Text> */}
+                {/* <Text fontSize="3xl" className='feature-heading' mb={2}><b>{section.title}</b></Text>
+                <Text className='content' fontSize={"lg"} textAlign="justify" overflowWrap="break-word">{section.content}</Text> */}
+                <TypingContentAnimation text={section.content} />
+              </Box>
+            ))}
+            <Center>
+              <Slideshow images={secondHalf} />
+            </Center>
+            {subsectionsecondHalf.map((section, index) => (
+              <Box key={index} width={"100%"}>
+                <TypingHeadingAnimation text={section.title} />
+                {/* <Text fontSize="3xl" className='feature-heading' mb={2}><b>{section.title}</b></Text>
+                <Text className='content' fontSize={"lg"} textAlign="justify" overflowWrap="break-word">{section.content}</Text> */}
                 <TypingContentAnimation text={section.content} />
               </Box>
             ))}
           </VStack>
+
+
+
           <Text fontSize="3xl" className='feature-heading'><b>{trans('Links of Resources:')}</b></Text>
           <List mb={5}>
             {Array.isArray(subject.urls) ? (
