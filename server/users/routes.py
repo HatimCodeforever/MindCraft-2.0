@@ -271,6 +271,7 @@ def getuser():
     # recommended_modules = recommend_module(base_module.module_id)
     recommended_modules = generate_recommendations(user_course, user_interest, all_ongoing_modules_names)
     print(recommended_modules)
+    print("Ongoing :-----------",ongoing_modules)
     # recommended_module_summary = {}
     # for module_id in recommended_modules:
     #     module = Module.query.get(module_id)
@@ -715,7 +716,7 @@ def query_module(module_id, source_language, websearch):
     trans_submodule_content = translate_submodule_content(content, source_language)
     print(f"Translated submodule content: {trans_submodule_content}")
     
-    return jsonify({"message": "Query successful", "images": module.image_urls,"videos": module.video_urls ,"content": trans_submodule_content, "response": True}), 200
+    return jsonify({"message": "Query successful", "images": module.image_urls,"videos": module.video_urls ,"content": trans_submodule_content,"sub_modules": submodules, "response": True}), 200
 
 
 # download route --> generate pdf for module summary and module content

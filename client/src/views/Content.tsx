@@ -361,6 +361,15 @@ const ContentSec = ({ subject, isLoading, images, index, data_len, quiz, quiz2, 
             )}
           </List>
           <Text fontSize="3xl" className='feature-heading'><b>{trans('Links of Videos:')}</b></Text>
+          {/* <iframe
+            width="560"
+            height="315"
+            src='https://www.youtube.com/watch?v=olFxW7kdtP8'
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe> */}
           <List mb={5}>
             {Array.isArray(videos[index]) ? (
               videos[index].map((url, index) => (

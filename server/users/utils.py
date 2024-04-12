@@ -115,7 +115,9 @@ Be a good educational assistant and craft the best way to explain the sub-module
                     seed = 42
         )
         print("Thread 1: Module Generated: ",key,"!")   
-        print(ast.literal_eval(completion.choices[0].message.content))
+        content_output = ast.literal_eval(completion.choices[0].message.content)
+        content_output['subject_name'] = val
+        print(content_output)
         all_content.append(ast.literal_eval(completion.choices[0].message.content))
     return all_content
 
@@ -188,7 +190,7 @@ def generate_content_from_web(sub_module_name, api_key_to_use):
     If there are specific examples or real-world applications related to the subject, \
     please include them to enhance practical understanding. Additionally, conclude your \
     response by suggesting relevant URLs for further reading to empower users with \
-    additional resources on the subject. Make sure your output is a valid json where the keys are the subject_name, \
+    additional resources on the subject. Make sure your output is a valid json where the keys are the \
     title_for_the_content, content, subsections (which should be a list of dictionaries with the keys - title and content) and urls (which should be a list).
     """
     flag = 1 if api_key_to_use== 'first' else (2 if api_key_to_use=='second' else 3 )
