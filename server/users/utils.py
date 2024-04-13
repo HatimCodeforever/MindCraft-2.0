@@ -713,7 +713,7 @@ Context: {context}
 
 Follow the provided JSON format diligently."""
 
-  client = OpenAI()
+  client = OpenAI(api_key=openai_api_key1)
   completion = client.chat.completions.create(
           model = 'gpt-3.5-turbo-1106',
           messages = [

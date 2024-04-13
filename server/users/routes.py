@@ -565,65 +565,79 @@ def personalized_module():
         file.save(os.path.join("uploads", filename))
     title = request.form['title']
     description = request.form['description']
-    print("everything",title,description)
-    submodules= ["introduction","hatim","haadi"]
-    return jsonify({"message": "Query successful","submodules":submodules,"response":True}), 200
+    session['user_profile']=description
+    session['title']=title
+    DOCS_PATH = os.path.join("uploads", filename)
+    loader = PyPDFLoader(DOCS_PATH)
+    docs = loader.load()
+    docs_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    split_docs = docs_splitter.split_documents(docs)
+    TEXTBOOK_VECTORSTORE = FAISS.from_documents(split_docs, EMBEDDINGS)
+    TEXTBOOK_VECTORSTORE.save_local('user_docs')
+    print('CREATED VECTORSTORE')
+    VECTORDB_TEXTBOOK = FAISS.load_local('user_docs', EMBEDDINGS, allow_dangerous_deserialization=True)
+    submodules = generate_module_from_textbook(title,VECTORDB_TEXTBOOK)
+    values_list = list(submodules.values())
+    session['submodules']=submodules
+    return jsonify({"message": "Query successful","submodules":values_list,"response":True}), 200
 
-# @users.route('/query2/doc_generate_content',methods=['POST'])
-# def personalized_module_content():
-#     user_id = session.get("user_id", None)
-#     if user_id is None:
-#         return jsonify({"message": "User not logged in", "response": False}), 401
+@users.route('/query2/doc_generate_content',methods=['GET'])
+def personalized_module_content():
+    user_id = session.get("user_id", None)
+    if user_id is None:
+        return jsonify({"message": "User not logged in", "response": False}), 401
     
-#     # check if user exists
-#     user = User.query.get(user_id)
-#     if user is None:
-#         return jsonify({"message": "User not found", "response": False}), 404
-#     source_language ="en"
-#     characters = string.ascii_letters + string.digits  # Alphanumeric characters
-#     key = ''.join(secrets.choice(characters) for _ in range(7))
+    # check if user exists
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({"message": "User not found", "response": False}), 404
+    source_language ="en"
+    characters = string.ascii_letters + string.digits  # Alphanumeric characters
+    key = ''.join(secrets.choice(characters) for _ in range(7))
+    title=session['title']
+    description=session['user_profile']
+    VECTORDB_TEXTBOOK = FAISS.load_local('user_docs', EMBEDDINGS, allow_dangerous_deserialization=True)
+    # new_module = PersonalizedModule(
+    #     module_code=key,
+    #     module_name=modulename,
+    #     summary=modulesummary
+    # )
+    # db.session.add(new_module)
+    # db.session.commit()
+    # check if submodules are saved in the database for the given module_id
+    print("language",source_language)
+    with ThreadPoolExecutor() as executor:
+        submodules = session['submodules']
+        keys_list = list(submodules.keys())
+        future_images_list = executor.submit(module_image_from_web, submodules)
+        future_video_list = executor.submit(module_videos_from_web, submodules)
+        submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
+        submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
+        future_content_one = executor.submit(generate_content_from_textbook,title ,submodules_split_one,description,VECTORDB_TEXTBOOK,'first')
+        future_content_two = executor.submit(generate_content_from_textbook,title ,submodules_split_two,description,VECTORDB_TEXTBOOK,'second')
+
+    # Retrieve the results when both functions are done
+    content_one = future_content_one.result()
+    content_two = future_content_two.result()
+
+    content = content_one + content_two
+    images_list = future_images_list.result()
+    video_list = future_video_list.result()
+
+    # new_module.submodule_content = content
+    # new_module.image_urls = images_list
+    # new_module.video_urls = video_list
+    # db.session.commit()
+
+    # add module to ongoing modules for user
+    # ongoing_module = PersonalizedOngoingModule(user_id=user.user_id, module_id=new_module.module_id)
+    # db.session.add(ongoing_module)
+    # db.session.commit()
+    # translate submodule content to the source language
+    trans_submodule_content = translate_submodule_content(content, source_language)
+    print(f"Translated submodule content: {trans_submodule_content}")
     
-#     new_module = PersonalizedModule(
-#         module_code=key,
-#         module_name=modulename,
-#         summary=modulesummary
-#     )
-#     db.session.add(new_module)
-#     db.session.commit()
-#     # check if submodules are saved in the database for the given module_id
-#     print("language",source_language)
-#     with ThreadPoolExecutor() as executor:
-#         submodules = generate_submodules(new_module.module_name)
-#         print(submodules)
-#         keys_list = list(submodules.keys())
-#         future_images_list = executor.submit(module_image_from_web, submodules)
-#         future_video_list = executor.submit(module_videos_from_web, submodules)
-#         submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
-#         submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
-#         future_content_one = executor.submit(generate_content, submodules_split_one, new_module.module_name,'first')
-#         future_content_two = executor.submit(generate_content, submodules_split_two, new_module.module_name,'second')
-
-#     # Retrieve the results when both functions are done
-#     content_one = future_content_one.result()
-#     content_two = future_content_two.result()
-
-#     content = content_one + content_two
-#     images_list = future_images_list.result()
-#     video_list = future_video_list.result()
-
-#     new_module.submodule_content = content
-#     new_module.image_urls = images_list
-#     new_module.video_urls = video_list
-#     db.session.commit()
-
-#     # add module to ongoing modules for user
-#     ongoing_module = PersonalizedOngoingModule(user_id=user.user_id, module_id=new_module.module_id)
-#     db.session.add(ongoing_module)
-#     db.session.commit()
-#     # translate submodule content to the source language
-#     trans_submodule_content = translate_submodule_content(content, source_language)
-#     print(f"Translated submodule content: {trans_submodule_content}")
-#     return jsonify({"message": "Query successful","response":True}), 200
+    return jsonify({"message": "Query successful", "images": images_list,"videos": video_list, "content": trans_submodule_content, "response": True}), 200
 
 # query route --> if websearch is true then fetch from web and feed into model else directly feed into model
 # save frequently searched queries in database for faster retrieval
@@ -649,11 +663,13 @@ def query_topic(topicname,level,websearch,source_lang):
         source_language=source_lang
         print(f"Source Language: {source_language}")
 
+    trans_topic_name = ""
     # translate other languages input to english
     if source_lang!="en":
         trans_topic_name = GoogleTranslator(source=source_lang, target='en').translate(topicname)
         print(f"Translated topic name: {trans_topic_name}")
-
+    else:
+        trans_topic_name = topicname
 # check if topic exists in database along with its modulenames and summaries
     topic = Topic.query.filter_by(topic_name=trans_topic_name.lower()).first()
     if topic is None:
@@ -1267,4 +1283,3 @@ def delete_info():
         db.session.delete(module)
         db.session.commit()
     return jsonify({"message": "An error occurred during evaluation"}), 200
-    

@@ -7,6 +7,7 @@ import box from '../assets/images/box.gif';
 import axios from 'axios';
 import { UnorderedList, ListItem, Spinner, List } from "@chakra-ui/react";
 import { Editable, EditablePreview, EditableInput} from "@chakra-ui/react";
+import { useNavigate } from 'react-router-dom';
 
 
 const PersonalisedCourses = () => {
@@ -16,6 +17,7 @@ const PersonalisedCourses = () => {
     const [descriptionValue, setDescriptionValue] = useState('');
     const [submodules, setsubModules] = useState([]);
     const [isLoadingData, setIsLoadingData] = useState(false);
+    const navigate = useNavigate();
 
     const sendDataToAPI = async (data) => {
         try {
@@ -275,6 +277,7 @@ const PersonalisedCourses = () => {
                                                 width={200}
                                                 disabled={!text.trim()}
                                                 onClick={() => {
+                                                    navigate('/pers-content');
                                                     setActiveStep(prevStep => prevStep + 1);
                                                     setText('');
                                                 }}
