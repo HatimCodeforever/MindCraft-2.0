@@ -99,7 +99,7 @@ export default function Issac3D(): JSX.Element {
         <ambientLight intensity={0.5} />
         <spotLight position={[10, 10, 10]} angle={0} penumbra={1} />
         <perspectiveCamera position={[0, 0, 35]} fov={50} />
-        <Environment files="/pretville_cinema_8k.hdr" ground={{ height: 5, radius: 30, scale: 20 }} />
+        <Environment files="/school_quad_4k.hdr" ground={{ height: 5, radius: 30, scale: 20 }} />
         <Model position={[1, 0, 3]} scale={1.8} animationName={isTalking ? "talk" : "idle"} />
         <Html position={[-1, -1, 0]}>
           {userText && (<div style={{

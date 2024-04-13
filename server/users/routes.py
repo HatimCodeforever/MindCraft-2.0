@@ -220,7 +220,7 @@ def getuser():
     user_interest = user.interests
     all_ongoing_modules_names = ""
   
-    for comp_module in user_completed_modules:
+    for comp_module in user_ongoing_modules:
         temp = {}
         module = Module.query.get(comp_module.module_id)
         topic = Topic.query.get(module.topic_id)
@@ -228,24 +228,24 @@ def getuser():
         temp['topic_name'] = topic.topic_name
         temp['module_summary'] = module.summary
         temp['level'] = module.level
-        
-        if comp_module.theory_quiz_score is not None and comp_module.application_quiz_score is not None and comp_module.assignment_score is not None:
-            temp['quiz_score'] = [comp_module.theory_quiz_score, comp_module.application_quiz_score, comp_module.assignment_score]
-            completed_modules.append(temp)
+        all_ongoing_modules_names += f"{module.module_name},"
+        c_module = CompletedModule.query.filter(CompletedModule.module_id==comp_module.module_id,CompletedModule.user_id==user_id).first()
+        if c_module:
+            if c_module.theory_quiz_score is not None and c_module.application_quiz_score is not None and c_module.assignment_score is not None:
+                temp['quiz_score'] = [c_module.theory_quiz_score, c_module.application_quiz_score, c_module.assignment_score]
+                completed_modules.append(temp)
+            else:
+                temp['date_started'] = comp_module.date_started.strftime("%d/%m/%Y %H:%M")
+                quiz_list = [c_module.theory_quiz_score, c_module.application_quiz_score, c_module.assignment_score]
+                temp['quiz_score'] = [x for x in quiz_list if x is not None]
+                ongoing_modules.append(temp)
         else:
-            print("user",user.user_id)
-            print("user",module.module_id)
-            print("user",module.level)
+            temp['date_started'] = comp_module.date_started.strftime("%d/%m/%Y %H:%M")
+            temp['quiz_score'] = []
+            ongoing_modules.append(temp)
+            
 
-            onmodule = OngoingModule.query.filter_by(user_id=user.user_id, module_id=module.module_id, level=module.level).first()
-            print("why!!!!!!!!!!!!!!!!!!!--------------------",onmodule)
-            temp['date_started'] = onmodule.date_started.strftime("%d/%m/%Y %H:%M")
-            quiz_list = [comp_module.theory_quiz_score, comp_module.application_quiz_score, comp_module.assignment_score]
-            temp['quiz_score'] = [x for x in quiz_list if x is not None]
-            all_ongoing_modules_names += f"{module.module_name},"
-            ongoing_modules.append(temp)        
-
-    
+        
     query_message = ""
     user_queries = user.user_query_association
     # if user_queries is None:
@@ -452,7 +452,7 @@ def translate_evaluations(evaluations, target_language):
 
     return trans_eval
 
-@users.route('/query2/doc-upload/<string:topicname>/<string:level>/<string:source_lang>', methods=['POST'])
+@users.route('/query2/doc-upload/<string:topicname>/<string:level>/<string:source_lang>',methods=['POST'])
 def doc_query_topic(topicname,level,source_lang):
     user_id = session.get('user_id')
     print(session.get('user_id'))
@@ -538,6 +538,34 @@ def doc_query_topic(topicname,level,source_lang):
 
     return jsonify({"message": "Query successful", "topic_id":topic.topic_id, "topic":trans_topic_name, "source_language":source_language, "module_ids":module_ids, "content": trans_module_summary_content, "response":True}), 200
 
+
+@users.route('/query2/doc-upload',methods=['POST'])
+def personalized_module():
+    user_id = session.get('user_id')
+    print(session.get('user_id'))
+    if user_id is None:
+        return jsonify({"message": "User not logged in", "response":False}), 401
+    
+    # check if user exists
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({"message": "User not found", "response":False}), 404
+    
+    if 'file' not in request.files:
+        return 'No file part', 400
+    file = request.files['file']
+    if file.filename == '':
+        return 'No selected file', 400
+    if not os.path.exists("uploads"):
+        os.makedirs("uploads")
+    if file:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join("uploads", filename))
+    title = request.form['title']
+    description = request.form['description']
+    print("everything",title,description)
+    return jsonify({"message": "Query successful","response":True}), 200
+    
 # query route --> if websearch is true then fetch from web and feed into model else directly feed into model
 # save frequently searched queries in database for faster retrieval
 @users.route('/query2/<string:topicname>/<string:level>/<string:websearch>/<string:source_lang>', methods=['GET'])

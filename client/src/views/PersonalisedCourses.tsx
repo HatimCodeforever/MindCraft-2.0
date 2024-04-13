@@ -3,11 +3,25 @@ import { Input, Text, Image, Stepper, Step, StepIndicator, StepStatus, Box, Stac
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import Nav from '../components/navbar';
 import Footer from '../components/footer';
-import box from '../assets/images/box.gif'
+import box from '../assets/images/box.gif';
+import axios from 'axios';
 
 const PersonalisedCourses = () => {
     const [text, setText] = useState('');
     const [text2, setText2] = useState('');
+    const [inputValue, setInputValue] = useState('');
+    const [descriptionValue, setDescriptionValue] = useState('');
+
+    const sendDataToAPI = async (data) => {
+        try {
+            // Make POST request to your Flask API route
+            await axios.post('/api/query2/doc-upload', data);
+            console.log('Data sent successfully:', data);
+        } catch (error) {
+            console.error('Error sending data:', error);
+        }
+    };
+
     const messages = [
         "Learn Machine Learning in 8 weeks",
         "Master Linear Algebra"
@@ -20,8 +34,26 @@ const PersonalisedCourses = () => {
     let index = 0;
     const [selectedFile, setSelectedFile] = useState(null);
 
+    const handleChange = (event) => {
+        setInputValue(event.target.value);
+    };
+
+    const handleDescriptionChange = (event) => {
+        setDescriptionValue(event.target.value);
+    };
+
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0]);
+    };
+
+    const handleNextStep3 = () => {
+        const formData = new FormData();
+        formData.append('title', inputValue);
+        formData.append('description', descriptionValue);
+        formData.append('file', selectedFile);
+
+        // Send data to Flask route using Axios
+        sendDataToAPI(formData);
     };
 
     const handleDrop = (e) => {
@@ -61,7 +93,8 @@ const PersonalisedCourses = () => {
                 <Box textAlign="center" marginTop={4}
                     style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}> {/* Increased maxWidth */}
                     <Heading size="lg" margin={7}>Enter your Course title</Heading>
-                    <Input placeholder='Machine Learning' size='lg' />
+                    <Input placeholder='Machine Learning' value={inputValue}
+                        onChange={handleChange} size='lg' />
                     <Stack align="end" margin={5} marginBottom={45}>
                         <Button
                             colorScheme='purple'
@@ -87,6 +120,8 @@ const PersonalisedCourses = () => {
                     <Heading size="lg" margin={7}>Describe your course</Heading>
                     <Textarea
                         placeholder={text}
+                        value={descriptionValue}
+                        onChange={handleDescriptionChange}
                         style={{
                             width: '700px', // Adjusted width to 100%
                             height: '250px',
@@ -191,6 +226,7 @@ const PersonalisedCourses = () => {
                             width={200}
                             disabled={!text.trim()}
                             onClick={() => {
+                                handleNextStep3(); // Call the function to send data to Flask
                                 setActiveStep(prevStep => prevStep + 1);
                                 setText('');
                             }}

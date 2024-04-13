@@ -34,7 +34,7 @@ function App() {
         <Route path="/trending" element={<Trending />} />
         <Route path="/content" element={<Content />} />
         <Route path="*" element={<Navigate to="/" />} />
-        <Route path="/personalisedcourses" element={<PersonalisedCourses />} />
+        <Route path="/pers-courses" element={<PersonalisedCourses />} />
       </Routes>
     </Router>
   );
