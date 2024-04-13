@@ -733,6 +733,10 @@ def query_module(module_id, source_language, websearch):
     
     # check if submodules are saved in the database for the given module_id
     module = Module.query.get(module_id)
+    ongoing_module = OngoingModule(user_id=user.user_id, module_id=module_id, level=module.level)
+    if not ongoing_module:
+        db.session.add(ongoing_module)
+        db.session.commit()
     if module.submodule_content is not None:
         trans_submodule_content = translate_submodule_content(module.submodule_content, source_language)
         print(f"Translated submodule content: {trans_submodule_content}")
