@@ -32,17 +32,20 @@ const ChatWidget: React.FC = () => {
   const startListening = () => SpeechRecognition.startListening({ continuous: true, language: source_lang });
   const stopListening = () => SpeechRecognition.stopListening();
 
-  const speak = (text) => {
+  const speak = (text, source_lang, speed) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = source_lang;
+    utterance.rate = speed; // Set the speed of the speech
+
     const voices = window.speechSynthesis.getVoices();
     const Voice = voices.find(voice => voice.lang.startsWith(source_lang));
     if (Voice) {
-      utterance.voice = Voice;
+      utterance.voice = Voice; // Set the voice
     }
 
     window.speechSynthesis.speak(utterance);
-  };
+};
+
 
   const handleSendMessage = async () => {
     let newChatHistory = [...chatHistory];
@@ -68,7 +71,7 @@ const ChatWidget: React.FC = () => {
         { role: 'chatbot', message: chatbotResponse },
       ];
       setChatHistory(newChatHistoryWithResponse);
-      speak(data.chatbotResponse)
+      speak(data.chatbotResponse, "en-US", 2)
     } catch (error) {
       console.error('Error fetching chatbot response:', error);
     } finally {

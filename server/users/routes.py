@@ -50,24 +50,24 @@ VECTORDB = FAISS.load_local('assistant_data/faiss_index_assistant', EMBEDDINGS, 
 
 
 tools = [
-    {
-        'type': 'function',
-        'function': {
+    # {
+    #     'type': 'function',
+    #     'function': {
 
-            'name': 'retrieval_augmented_generation',
-            'description': 'Fetches information about the various features of MindCraft. Used to answer queries related to MindCraft\'s various features.',
-            'parameters': {
-                'type': 'object',
-                'properties': {
-                    'query': {
-                        'type': 'string',
-                        'description': 'The query to use for searching the vector database of Mindcraft'
-                    },
-                },
-                'required': ['query']
-            }
-        }
-    },
+    #         'name': 'retrieval_augmented_generation',
+    #         'description': 'Use to answer questions about the MindCraft platform. ONLY use this to retrieve information about the platform. Do not use this to answer questions that are not about the platform.',
+    #         'parameters': {
+    #             'type': 'object',
+    #             'properties': {
+    #                 'query': {
+    #                     'type': 'string',
+    #                     'description': 'The query to use for searching the information database of Mindcraft'
+    #                 },
+    #             },
+    #             'required': ['query']
+    #         }
+    #     }
+    # },
     {
         'type': 'function',
         'function': {
@@ -133,12 +133,13 @@ def login():
     # start user session
     session["user_id"] = user.user_id
     print("user id in session:-",session.get('user_id'))
-
+    profile = f"This a profile of user, Name: {user.fname} {user.lname}, Email: {user.email}, Country: {user.country}, Age: {user.age}, Ongoing Course Name: {user.course_name}, User Interest: {user.interests}"
+    print("Profile",profile)
     # create assistant for user
     client = OpenAI(api_key = openai_api_key1)
     assistant = client.beta.assistants.create(
         name="MINDCRAFT",
-        instructions="You are a helpful assistant for the website Mindcraft. Use the functions provided to you to answer user's question about the Mindcraft platform. Help the user with navigating and getting information about the Mindcraft website.Provide the navigation links defined in the document whenever required",
+        instructions=f"You are ISSAC, a helpful assistant for the website Mindcraft. Use the functions provided to you to answer user's question about the Mindcraft platform. {profile}",
         model="gpt-3.5-turbo-1106",
         tools=tools
     )
