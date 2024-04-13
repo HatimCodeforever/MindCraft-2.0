@@ -672,13 +672,8 @@ def course_overview(module_id, source_language, websearch):
             submodules = generate_submodules_from_web(module.module_name,module.summary)
             print(submodules)
             keys_list = list(submodules.keys())
-            images_list=[]
-            video_list=[]
-            for key in keys_list:
-                images = module_image_from_web(submodules[key])
-                video = module_videos_from_web(submodules[key])
-                images_list.append(images)
-                video_list.append(video)
+            future_images_list = executor.submit(module_image_from_web, submodules)
+            future_video_list = executor.submit(module_videos_from_web, submodules)
             submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
             submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
             future_content_one = executor.submit(generate_content_from_web, submodules_split_one, module.module_name, 'first')
@@ -688,13 +683,8 @@ def course_overview(module_id, source_language, websearch):
             submodules = generate_submodules(module.module_name)
             print(submodules)
             keys_list = list(submodules.keys())
-            images_list=[]
-            video_list=[]
-            for key in keys_list:
-                images = module_image_from_web(submodules[key])
-                video = module_videos_from_web(submodules[key])
-                images_list.append(images)
-                video_list.append(video)
+            future_images_list = executor.submit(module_image_from_web, submodules)
+            future_video_list = executor.submit(module_videos_from_web, submodules)
             submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
             submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
             future_content_one = executor.submit(generate_content, submodules_split_one, module.module_name,'first')
@@ -705,6 +695,8 @@ def course_overview(module_id, source_language, websearch):
     content_two = future_content_two.result()
 
     content = content_one + content_two
+    images_list = future_images_list.result()
+    video_list = future_video_list.result()
 
     module.submodule_content = content
     module.image_urls = images_list
@@ -776,7 +768,7 @@ def download_pdf(module_id, source_language):
     pdf_file_path = os.path.join(download_dir, f"{clean_modulename}_summary.pdf")
 
     # Call the generate_pdf function with the custom_styles argument
-    generate_pdf(pdf_file_path, trans_modulename, trans_module_summary, trans_submodule_content, source_language)
+    generate_pdf(pdf_file_path, trans_modulename, trans_module_summary, trans_submodule_content, source_language, module.video_urls)
 
     # Send the PDF file as an attachment
     return send_file(pdf_file_path, as_attachment=True)
