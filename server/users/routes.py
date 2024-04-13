@@ -768,7 +768,7 @@ def download_pdf(module_id, source_language):
     pdf_file_path = os.path.join(download_dir, f"{clean_modulename}_summary.pdf")
 
     # Call the generate_pdf function with the custom_styles argument
-    generate_pdf(pdf_file_path, trans_modulename, trans_module_summary, trans_submodule_content, source_language)
+    generate_pdf(pdf_file_path, trans_modulename, trans_module_summary, trans_submodule_content, source_language, module.video_urls)
 
     # Send the PDF file as an attachment
     return send_file(pdf_file_path, as_attachment=True)

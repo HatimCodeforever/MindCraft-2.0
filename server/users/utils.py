@@ -312,7 +312,7 @@ def module_videos_from_web(submodules):
     return videos_list
 
 
-def generate_pdf(pdf_file_path, modulename, module_summary, submodule_content, src_lang):
+def generate_pdf(pdf_file_path, modulename, module_summary, submodule_content, src_lang, video_urls):
     # Register Unicode fonts
     pdfmetrics.registerFont(TTFont('NotoSansDevanagari', 'Fonts/NotoSansDevanagari-Regular.ttf'))
     pdfmetrics.registerFont(TTFont('DejaVuSansCondensed', 'Fonts/DejaVuSansCondensed.ttf'))
@@ -342,9 +342,8 @@ def generate_pdf(pdf_file_path, modulename, module_summary, submodule_content, s
     ]
 
     # Add submodule content
-    for entry in submodule_content:
+    for i, entry in enumerate(submodule_content):
         content.append(Paragraph(entry['subject_name'], styles['Heading2' if src_lang == 'en' else 'Devanagari_Heading2']))
-        content.append(Paragraph(entry['title_for_the_content'], styles['Heading3' if src_lang == 'en' else 'Devanagari_Heading3']))
         content.append(Paragraph(entry['content'], styles['Heading3' if src_lang == 'en' else 'Devanagari_Heading3']))
 
         # Check if there are subsections
@@ -357,6 +356,11 @@ def generate_pdf(pdf_file_path, modulename, module_summary, submodule_content, s
         if 'urls' in entry:
             content.append(Paragraph("Reference:", styles['Heading3']))
             for url in entry['urls']:
+                content.append(Paragraph(url, styles['URL']))
+
+        if video_urls[i]:
+            content.append(Paragraph("Video Links:", styles['Heading3']))
+            for url in video_urls[i]:
                 content.append(Paragraph(url, styles['URL']))
 
     pdf.build(content, onFirstPage=add_page_number, onLaterPages=add_page_number)
