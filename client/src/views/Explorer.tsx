@@ -29,7 +29,7 @@ export const Model: React.FC<ModelProps> = (props: ModelProps) => {
  // Render the model
  return (
     <group ref={group}>
-      <primitive object={nodes.Sketchfab_Scene} dispose={null} scale={[10, 10, 10]} />
+      <primitive object={nodes.Sketchfab_Scene} dispose={null} scale={[40, 40, 40]} position={[-5, -10, -15]}/>
     </group>
  );
 };
