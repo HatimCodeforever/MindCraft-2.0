@@ -5,18 +5,25 @@ import Nav from '../components/navbar';
 import Footer from '../components/footer';
 import box from '../assets/images/box.gif';
 import axios from 'axios';
+import { UnorderedList, ListItem, Spinner, List } from "@chakra-ui/react";
+import { Editable, EditablePreview, EditableInput} from "@chakra-ui/react";
+
 
 const PersonalisedCourses = () => {
     const [text, setText] = useState('');
     const [text2, setText2] = useState('');
     const [inputValue, setInputValue] = useState('');
     const [descriptionValue, setDescriptionValue] = useState('');
+    const [submodules, setsubModules] = useState([]);
+    const [isLoadingData, setIsLoadingData] = useState(false);
 
     const sendDataToAPI = async (data) => {
         try {
+            setIsLoadingData(true);
             // Make POST request to your Flask API route
-            await axios.post('/api/query2/doc-upload', data);
-            console.log('Data sent successfully:', data);
+            const response = await axios.post('/api/query2/doc-upload', data);
+            setsubModules(response.data.submodules)
+            setIsLoadingData(false);
         } catch (error) {
             console.error('Error sending data:', error);
         }
@@ -240,39 +247,46 @@ const PersonalisedCourses = () => {
         {
             title: 'Step 4', content: <div>
                 <div>
-                    <Box textAlign="center" marginTop={4}
-                        style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}> {/* Increased maxWidth */}
-                        <Heading size="lg" margin={7}>What is your course about ?</Heading>
-                        <Textarea
-                            placeholder={text2}
-                            style={{
-                                width: '700px', // Adjusted width to 100%
-                                height: '250px',
-                                padding: '10px',
-                                fontSize: '1.2em',
-                                color: '#999',
-                                border: '1px solid #ddd',
-                                borderRadius: '4px',
-                                resize: 'none',
-                                margin: "10px"
-                            }}
-                        />
-                        <Stack align="end" margin={5} marginBottom={45}>
-                            <Button
-                                colorScheme='purple'
-                                size='lg'
-                                width={200}
-                                disabled={!text.trim()}
-                                onClick={() => {
-                                    setActiveStep(prevStep => prevStep + 1);
-                                    setText('');
-                                }}
-                            >
-                                Next
-                            </Button>
-                        </Stack>
-                    </Box>
+                    {
+                        isLoadingData ? (
+                            <Box textAlign="center" height={"500px"} marginTop={4} style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+                                <Spinner size="xl" color="purple.500" />
+                                <Text mt={4}>Loading...</Text>
+                            </Box>
+                        ) : (
+                            <>
+                                <div>
+                                    <Box textAlign="center" marginTop={4} style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+                                        {/* Increased maxWidth */}
+                                        <Heading size="lg" margin={7}>Your Generated Submodules</Heading>
+                                        <List spacing={3}>
+                                            {submodules.map((item, index) => (
+                                                <Editable key={index} defaultValue={item} onChange={(value) => handleEdit(value, index)}>
+                                                    <EditablePreview />
+                                                    <EditableInput />
+                                                </Editable>
+                                            ))}
+                                        </List>
 
+                                        <Stack align="center" margin={5} marginBottom={45}>
+                                            <Button
+                                                colorScheme='purple'
+                                                size='lg'
+                                                width={200}
+                                                disabled={!text.trim()}
+                                                onClick={() => {
+                                                    setActiveStep(prevStep => prevStep + 1);
+                                                    setText('');
+                                                }}
+                                            >
+                                                Generate Content
+                                            </Button>
+                                        </Stack>
+                                    </Box>
+                                </div>
+                            </>
+                        )
+                    }
                 </div>
             </div>
         },

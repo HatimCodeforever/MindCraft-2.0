@@ -1,6 +1,6 @@
 from flask import request, session, jsonify,  Blueprint, send_file
 from server import db, bcrypt
-from server.models import User, Topic, Module, Query, CompletedModule, OngoingModule
+from server.models import User, Topic, Module, Query, CompletedModule, OngoingModule,PersonalizedCompletedModule,PersonalizedModule,PersonalizedOngoingModule
 from concurrent.futures import ThreadPoolExecutor
 import os
 from flask_cors import cross_origin
@@ -18,6 +18,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
+import secrets
+import string
 
 users = Blueprint(name='users', import_name=__name__)
 
@@ -564,8 +566,65 @@ def personalized_module():
     title = request.form['title']
     description = request.form['description']
     print("everything",title,description)
-    return jsonify({"message": "Query successful","response":True}), 200
+    submodules= ["introduction","hatim","haadi"]
+    return jsonify({"message": "Query successful","submodules":submodules,"response":True}), 200
+
+# @users.route('/query2/doc_generate_content',methods=['POST'])
+# def personalized_module_content():
+#     user_id = session.get("user_id", None)
+#     if user_id is None:
+#         return jsonify({"message": "User not logged in", "response": False}), 401
     
+#     # check if user exists
+#     user = User.query.get(user_id)
+#     if user is None:
+#         return jsonify({"message": "User not found", "response": False}), 404
+#     source_language ="en"
+#     characters = string.ascii_letters + string.digits  # Alphanumeric characters
+#     key = ''.join(secrets.choice(characters) for _ in range(7))
+    
+#     new_module = PersonalizedModule(
+#         module_code=key,
+#         module_name=modulename,
+#         summary=modulesummary
+#     )
+#     db.session.add(new_module)
+#     db.session.commit()
+#     # check if submodules are saved in the database for the given module_id
+#     print("language",source_language)
+#     with ThreadPoolExecutor() as executor:
+#         submodules = generate_submodules(new_module.module_name)
+#         print(submodules)
+#         keys_list = list(submodules.keys())
+#         future_images_list = executor.submit(module_image_from_web, submodules)
+#         future_video_list = executor.submit(module_videos_from_web, submodules)
+#         submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
+#         submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
+#         future_content_one = executor.submit(generate_content, submodules_split_one, new_module.module_name,'first')
+#         future_content_two = executor.submit(generate_content, submodules_split_two, new_module.module_name,'second')
+
+#     # Retrieve the results when both functions are done
+#     content_one = future_content_one.result()
+#     content_two = future_content_two.result()
+
+#     content = content_one + content_two
+#     images_list = future_images_list.result()
+#     video_list = future_video_list.result()
+
+#     new_module.submodule_content = content
+#     new_module.image_urls = images_list
+#     new_module.video_urls = video_list
+#     db.session.commit()
+
+#     # add module to ongoing modules for user
+#     ongoing_module = PersonalizedOngoingModule(user_id=user.user_id, module_id=new_module.module_id)
+#     db.session.add(ongoing_module)
+#     db.session.commit()
+#     # translate submodule content to the source language
+#     trans_submodule_content = translate_submodule_content(content, source_language)
+#     print(f"Translated submodule content: {trans_submodule_content}")
+#     return jsonify({"message": "Query successful","response":True}), 200
+
 # query route --> if websearch is true then fetch from web and feed into model else directly feed into model
 # save frequently searched queries in database for faster retrieval
 @users.route('/query2/<string:topicname>/<string:level>/<string:websearch>/<string:source_lang>', methods=['GET'])
@@ -591,8 +650,9 @@ def query_topic(topicname,level,websearch,source_lang):
         print(f"Source Language: {source_language}")
 
     # translate other languages input to english
-    trans_topic_name = GoogleTranslator(source='auto', target='en').translate(topicname)
-    print(f"Translated topic name: {trans_topic_name}")
+    if source_lang!="en":
+        trans_topic_name = GoogleTranslator(source=source_lang, target='en').translate(topicname)
+        print(f"Translated topic name: {trans_topic_name}")
 
 # check if topic exists in database along with its modulenames and summaries
     topic = Topic.query.filter_by(topic_name=trans_topic_name.lower()).first()
