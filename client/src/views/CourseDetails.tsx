@@ -21,7 +21,6 @@ import {
     useColorModeValue,
     VisuallyHidden,
     List,
-    ListItem,
     Table,
     Thead,
     Tbody,
@@ -41,14 +40,18 @@ import {
     CardFooter,
     Spinner,
     Center,
-    Card
+    Card,
+    ListItem,
+    ListIcon,
+    OrderedList,
 } from '@chakra-ui/react'
 import { MdLocalShipping } from 'react-icons/md'
-import { TimeIcon, CalendarIcon, EditIcon, LockIcon, BellIcon, ChevronDownIcon, StarIcon } from '@chakra-ui/icons';
+import { TimeIcon, CalendarIcon, EditIcon, LockIcon, BellIcon, ChevronDownIcon, StarIcon, CheckCircleIcon } from '@chakra-ui/icons';
 import SimpleThreeColumns from '../components/SimpleThreeColumns';
 import { useSessionCheck } from "./useSessionCheck";
 import axios from 'axios';
 import Slideshow from './Sildeshow';
+import { NavLink } from 'react-router-dom';
 
 export default function Simple() {
     useSessionCheck();
@@ -347,85 +350,35 @@ export default function Simple() {
                         <Stack
                             spacing={{ base: 4, sm: 6 }}
                             direction={'column'}
+                            align="start"
+                            fontSize={17}
                             divider={
                                 <StackDivider borderColor={useColorModeValue('gray.200', 'gray.600')} />
-                            }>
+                            }
+                        >
                             <VStack spacing={{ base: 4, sm: 6 }}>
-                                {data.map((dict, index) => (
-                                    <div key={index}>
-                                        <Text fontSize={'lg'}>{dict.subject_name}</Text>
-                                    </div>
-                                ))}
+                                <OrderedList>
+                                    {data.map((dict, index) => (
+                                        <ListItem key={index}>
+                                            <ListIcon as={CheckCircleIcon} color='green.500' />
+                                            {dict.subject_name}
+                                        </ListItem>
+                                    ))}
+                                </OrderedList>
                             </VStack>
                             <SimpleThreeColumns />
                         </Stack>
-                        <Box as={'header'}>
-                            <Heading
-                                lineHeight={1.1}
-                                fontWeight={600}
-                                fontSize={{ base: '2xl', sm: '4xl', lg: '5xl' }}>
-                                Freqently Asked Question
-                            </Heading>
-                        </Box>
+                        <NavLink to="/content">
+                            <Stack align="center">
+                                <Button colorScheme='purple' size='lg' width={200}>
+                                    Get Started
+                                </Button>
+                            </Stack>
+                        </NavLink>
                     </Stack>
 
                 </Grid>
 
-
-                <Container>
-                    <Accordion width="900px" rounded="lg" marginLeft={10} paddingBottom={20}>
-                        <AccordionItem>
-                            <AccordionButton
-                                display="flex"
-                                justifyContent="space-between"
-                                p={4}>
-                                <Text fontSize="md">What is Chakra UI?</Text>
-                                <ChevronDownIcon fontSize="24px" />
-                            </AccordionButton>
-                            <AccordionPanel pb={4}>
-                                <Text color="gray.600">
-                                    Chakra UI is a simple and modular component library that gives developers
-                                    the building blocks they need to create web applications.
-                                </Text>
-                            </AccordionPanel>
-                        </AccordionItem>
-                        <AccordionItem>
-                            <AccordionButton
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="space-between"
-                                p={4}>
-                                <Text fontSize="md">What advantages to use?</Text>
-                                <ChevronDownIcon fontSize="24px" />
-                            </AccordionButton>
-                            <AccordionPanel pb={4}>
-                                <Text color="gray.600">
-                                    Chakra UI offers a variety of advantages including ease of use,
-                                    accessibility, and customization options. It also provides a comprehensive
-                                    set of UI components and is fully compatible with React.
-                                </Text>
-                            </AccordionPanel>
-                        </AccordionItem>
-                        <AccordionItem>
-                            <AccordionButton
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="space-between"
-                                p={4}>
-                                <Text fontSize="md">How to start using Chakra UI?</Text>
-                                <ChevronDownIcon fontSize="24px" />
-                            </AccordionButton>
-                            <AccordionPanel pb={4}>
-                                <Text color="gray.600">
-                                    To get started with Chakra UI, you can install it via npm or yarn, and
-                                    then import the components you need in your project. The Chakra UI
-                                    documentation is also a great resource for getting started and learning
-                                    more about the library.
-                                </Text>
-                            </AccordionPanel>
-                        </AccordionItem>
-                    </Accordion>
-                </Container>
             </Container>
             <Footer />
         </>
