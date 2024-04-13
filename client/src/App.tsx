@@ -13,6 +13,7 @@ import Issac2 from './views/Issac3D'
 import 'regenerator-runtime/runtime';
 import CourseDetails from './views/CourseDetails';
 import "./views/i18n"
+import PersonalisedCourses from './views/PersonalisedCourses';
 
 
 function App() {
@@ -27,12 +28,13 @@ function App() {
         <Route path="/trending" element={<Trending />} />
         <Route path="/explore" element={<Modules />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/issac" element={<Issac2 />} />
+        <Route path="/issac" element={<Issac />} />
         {/* <Route path="/issac" element={<Issac2 />} /> */}
         <Route path="/contact" element={<Contact />} />
         <Route path="/trending" element={<Trending />} />
         <Route path="/content" element={<Content />} />
         <Route path="*" element={<Navigate to="/" />} />
+        <Route path="/personalisedcourses" element={<PersonalisedCourses />} />
       </Routes>
     </Router>
   );
