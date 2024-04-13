@@ -55,13 +55,13 @@ tools = [
         'function': {
 
             'name': 'retrieval_augmented_generation',
-            'description': 'Fetches information about the various features of MindCraft. Used to answer queries related to MindCraft\'s various features.',
+            'description': 'Use to answer questions about the MindCraft platform. ONLY use this to retrieve information about the platform. Do not use this to answer questions that are not about the platform.',
             'parameters': {
                 'type': 'object',
                 'properties': {
                     'query': {
                         'type': 'string',
-                        'description': 'The query to use for searching the vector database of Mindcraft'
+                        'description': 'The query to use for searching the information database of Mindcraft'
                     },
                 },
                 'required': ['query']
