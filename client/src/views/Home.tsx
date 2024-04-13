@@ -28,7 +28,7 @@ function Home() {
   const [recommendCourses, setRecommendedCourses] = useState([]);
   const [ongoingCourses, setOngoingCourses] = useState([]);
   const [completedCourses, setCompletedCourses] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const handleTabsChange = (index: number) => {
     if (index !== tabIndex) {
@@ -73,16 +73,16 @@ function Home() {
   ]);
 
 
-  const ongoingCourses_ex = [
-    {
-      moduleTopic: "Introduction to Machine Learning",
-      moduleSummary: "Machine Learning (ML) is a subfield of artificial intelligence (AI) that focuses on developing algorithms and models that enable computers to learn from data and make predictions or decisions without explicit programming.",
-    },
-    {
-      moduleTopic: "Introduction to Data Engineering",
-      moduleSummary: "Data engineering is the practice of designing and building systems for collecting, storing, and analysing data at scale.",
-    },
-  ];
+  // const ongoingCourses_ex = [
+  //   {
+  //     moduleTopic: "Introduction to Machine Learning",
+  //     moduleSummary: "Machine Learning (ML) is a subfield of artificial intelligence (AI) that focuses on developing algorithms and models that enable computers to learn from data and make predictions or decisions without explicit programming.",
+  //   },
+  //   {
+  //     moduleTopic: "Introduction to Data Engineering",
+  //     moduleSummary: "Data engineering is the practice of designing and building systems for collecting, storing, and analysing data at scale.",
+  //   },
+  // ];
 
   // const completedCourses = [
   //   {
@@ -147,10 +147,10 @@ function Home() {
               </Grid>
             </TabPanel>
             <TabPanel style={{ display: 'flex', flexDirection: 'row' }}>
-              {ongoingCourses_ex.map((course, index) => (
+              {ongoingCourses.map((course, index) => (
                 <SlideFade in={inProp} transition={{ enter: { duration: 0.7 } }} offsetY='50px' key={course.moduleTopic}>
                   <WorkingCard
-                    initialLessonName={course.moduleTopic}
+                    initialLessonName={course.module_name}
                     initialProgress={50}
                     moduleSummary={course.moduleSummary} // Pass the module summary
                   />
