@@ -669,7 +669,11 @@ def generate_recommendations(user_course, user_interest, past_module_names = Non
         User Interests: {user_interest}
         Past Module Names: {past_module_names}
 
-'''
+        Example output:
+        ```json
+        course name here : course summary here
+        ```
+        '''
         client = OpenAI(api_key = openai_api_key1)
 
         completion = client.chat.completions.create(
