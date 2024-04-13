@@ -21,7 +21,6 @@ import {
     useColorModeValue,
     VisuallyHidden,
     List,
-    ListItem,
     Table,
     Thead,
     Tbody,
@@ -41,14 +40,18 @@ import {
     CardFooter,
     Spinner,
     Center,
-    Card
+    Card,
+    ListItem,
+    ListIcon,
+    OrderedList,
 } from '@chakra-ui/react'
 import { MdLocalShipping } from 'react-icons/md'
-import { TimeIcon, CalendarIcon, EditIcon, LockIcon, BellIcon, ChevronDownIcon, StarIcon } from '@chakra-ui/icons';
+import { TimeIcon, CalendarIcon, EditIcon, LockIcon, BellIcon, ChevronDownIcon, StarIcon, CheckCircleIcon } from '@chakra-ui/icons';
 import SimpleThreeColumns from '../components/SimpleThreeColumns';
 import { useSessionCheck } from "./useSessionCheck";
 import axios from 'axios';
 import Slideshow from './Sildeshow';
+import { NavLink } from 'react-router-dom';
 
 export default function Simple() {
     useSessionCheck();
@@ -57,6 +60,7 @@ export default function Simple() {
     const [selectedSubject, setSelectedSubject] = useState();
     const [images, setImages] = useState([]);
     const [videos, setVideos] = useState([]);
+    const [othermoduleData, setothermoduleData] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const source_lang = localStorage.getItem('source_lang');
 
@@ -71,6 +75,7 @@ export default function Simple() {
                 setVideos(response.data.videos);
                 setData(response.data.content);
                 setmoduleData(response.data.module);
+                setothermoduleData(response.data.other_modules)
                 setSelectedSubject(response.data.content.length > 0 ? response.data.content[0] : null);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -132,7 +137,7 @@ export default function Simple() {
                                                 >
                                                     <Icon as={TimeIcon} boxSize="24px" color="white" />
                                                 </Box>
-                                                <Th fontSize={14}>Durations: 10 hours</Th>
+                                                <Th fontSize={14}>Durations: {Object.keys(data).length/2} hours</Th>
                                             </Flex>
                                         </Stack>
                                     </Tr>
@@ -218,94 +223,32 @@ export default function Simple() {
                         </TableContainer>
                         <Box border='1px solid black' borderRadius='md' p={4} overflow='hidden'>
                             <Stack>
-                                <Heading fontSize={20} marginTop={2}>New Courses</Heading>
-                                <Card
-                                    direction={{ base: 'column', sm: 'row' }}
-                                    overflow='hidden'
-                                    variant='outline'
-                                    _hover={{ transform: 'scale(1.05)' }}
-                                    transition='transform 0.2s'
-                                >
-                                    <Image
-                                        objectFit='cover'
-                                        maxW={{ base: '100%', sm: '100px' }}
-                                        maxH={{ sm: "100px" }}
-                                        src={Stud1}
-                                        alt='Caffe Latte'
-                                        marginTop={2}
-                                        marginLeft={3}
-                                    />
+                                <Heading fontSize={20} marginTop={2}>Other Modules</Heading>
+                                {othermoduleData.map(module => (
+                                    <Card
+                                        direction={{ base: 'column', sm: 'row' }}
+                                        overflow='hidden'
+                                        variant='outline'
+                                        _hover={{ transform: 'scale(1.05)' }}
+                                        transition='transform 0.2s'
+                                    >
+                                        <Image
+                                            objectFit='cover'
+                                            maxW={{ base: '100%', sm: '100px' }}
+                                            maxH={{ sm: "100px" }}
+                                            src={Stud1}
+                                            alt='Caffe Latte'
+                                            marginTop={2}
+                                            marginLeft={3}
+                                        />
+                                        <Stack>
+                                            <CardBody>
+                                                <Heading size='md'> {module.module_name}</Heading>
+                                            </CardBody>
 
-                                    <Stack>
-
-                                        <CardBody>
-                                            <Text py='2'>
-                                                by Advance
-                                            </Text>
-                                            <Heading size='md'> Modern Langugues</Heading>
-                                            <StarRating rating={4} />
-                                        </CardBody>
-
-                                    </Stack>
-                                </Card>
-                                <Card
-                                    direction={{ base: 'column', sm: 'row' }}
-                                    overflow='hidden'
-                                    variant='outline'
-                                    _hover={{ transform: 'scale(1.05)' }}
-                                    transition='transform 0.2s'
-                                >
-                                    <Image
-                                        objectFit='cover'
-                                        maxW={{ base: '100%', sm: '100px' }}
-                                        maxH={{ sm: "100px" }}
-                                        src={Stud2}
-                                        alt='Caffe Latte'
-                                        marginTop={2}
-                                        marginLeft={3}
-                                    />
-
-                                    <Stack>
-
-                                        <CardBody>
-                                            <Text py='2'>
-                                                by Advance
-                                            </Text>
-                                            <Heading size='md'> Modern Langugues</Heading>
-                                            <StarRating rating={4} />
-                                        </CardBody>
-
-                                    </Stack>
-                                </Card>
-                                <Card
-                                    direction={{ base: 'column', sm: 'row' }}
-                                    overflow='hidden'
-                                    variant='outline'
-                                    _hover={{ transform: 'scale(1.05)' }}
-                                    transition='transform 0.2s'
-                                >
-                                    <Image
-                                        objectFit='cover'
-                                        maxW={{ base: '100%', sm: '100px' }}
-                                        maxH={{ sm: "100px" }}
-                                        src={Stud3}
-                                        alt='Caffe Latte'
-                                        marginTop={2}
-                                        marginLeft={3}
-                                    />
-
-                                    <Stack>
-
-                                        <CardBody>
-                                            <Text py='2'>
-                                                by Advance
-                                            </Text>
-                                            <Heading size='md'> Modern Langugues</Heading>
-                                            <StarRating rating={4} />
-                                        </CardBody>
-
-                                    </Stack>
-                                </Card>
+                                        </Stack>
+                                    </Card>
+                                ))}
 
                             </Stack>
                         </Box>
@@ -347,85 +290,35 @@ export default function Simple() {
                         <Stack
                             spacing={{ base: 4, sm: 6 }}
                             direction={'column'}
+                            align="start"
+                            fontSize={17}
                             divider={
                                 <StackDivider borderColor={useColorModeValue('gray.200', 'gray.600')} />
-                            }>
+                            }
+                        >
                             <VStack spacing={{ base: 4, sm: 6 }}>
-                                {data.map((dict, index) => (
-                                    <div key={index}>
-                                        <Text fontSize={'lg'}>{dict.subject_name}</Text>
-                                    </div>
-                                ))}
+                                <OrderedList>
+                                    {data.map((dict, index) => (
+                                        <ListItem key={index}>
+                                            <ListIcon as={CheckCircleIcon} color='green.500' />
+                                            {dict.subject_name}
+                                        </ListItem>
+                                    ))}
+                                </OrderedList>
                             </VStack>
                             <SimpleThreeColumns />
                         </Stack>
-                        <Box as={'header'}>
-                            <Heading
-                                lineHeight={1.1}
-                                fontWeight={600}
-                                fontSize={{ base: '2xl', sm: '4xl', lg: '5xl' }}>
-                                Freqently Asked Question
-                            </Heading>
-                        </Box>
+                        <NavLink to="/content">
+                            <Stack align="center">
+                                <Button colorScheme='purple' size='lg' width={200}>
+                                    Get Started
+                                </Button>
+                            </Stack>
+                        </NavLink>
                     </Stack>
 
                 </Grid>
 
-
-                <Container>
-                    <Accordion width="900px" rounded="lg" marginLeft={10} paddingBottom={20}>
-                        <AccordionItem>
-                            <AccordionButton
-                                display="flex"
-                                justifyContent="space-between"
-                                p={4}>
-                                <Text fontSize="md">What is Chakra UI?</Text>
-                                <ChevronDownIcon fontSize="24px" />
-                            </AccordionButton>
-                            <AccordionPanel pb={4}>
-                                <Text color="gray.600">
-                                    Chakra UI is a simple and modular component library that gives developers
-                                    the building blocks they need to create web applications.
-                                </Text>
-                            </AccordionPanel>
-                        </AccordionItem>
-                        <AccordionItem>
-                            <AccordionButton
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="space-between"
-                                p={4}>
-                                <Text fontSize="md">What advantages to use?</Text>
-                                <ChevronDownIcon fontSize="24px" />
-                            </AccordionButton>
-                            <AccordionPanel pb={4}>
-                                <Text color="gray.600">
-                                    Chakra UI offers a variety of advantages including ease of use,
-                                    accessibility, and customization options. It also provides a comprehensive
-                                    set of UI components and is fully compatible with React.
-                                </Text>
-                            </AccordionPanel>
-                        </AccordionItem>
-                        <AccordionItem>
-                            <AccordionButton
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="space-between"
-                                p={4}>
-                                <Text fontSize="md">How to start using Chakra UI?</Text>
-                                <ChevronDownIcon fontSize="24px" />
-                            </AccordionButton>
-                            <AccordionPanel pb={4}>
-                                <Text color="gray.600">
-                                    To get started with Chakra UI, you can install it via npm or yarn, and
-                                    then import the components you need in your project. The Chakra UI
-                                    documentation is also a great resource for getting started and learning
-                                    more about the library.
-                                </Text>
-                            </AccordionPanel>
-                        </AccordionItem>
-                    </Accordion>
-                </Container>
             </Container>
             <Footer />
         </>

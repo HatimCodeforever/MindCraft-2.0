@@ -8,74 +8,43 @@ import {
   faMicrophoneAltSlash,
 } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import 'regenerator-runtime/runtime';
 import '../assets/chat_widget.css'; // Import your styles
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+
 
 const ChatWidget: React.FC = () => {
   const [showChatbot, setShowChatbot] = useState(false);
   const [userMessage, setUserMessage] = useState('');
+  const [voiceMessage, setvoiceMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<Array<{ role: string; message: string }>>([]);
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
-  const audioChunks = useRef<Array<Blob>>([]);
-  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const { transcript, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+  let source_lang = "en";
 
-  const startRecording = () => {
-    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-      mediaRecorder.current = new MediaRecorder(stream);
-      mediaRecorder.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunks.current.push(event.data);
-        }
-      };
-      mediaRecorder.current.onstop = () => {
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
-        // Send the audioBlob to the server
-        sendAudioToServer(audioBlob);
-        audioChunks.current = [];
-      };
+  if (!browserSupportsSpeechRecognition) {
+    return <span>Browser doesn't support speech recognition.</span>;
+  }
 
-      mediaRecorder.current.start();
-    });
-  };
 
-  const stopRecording = () => {
-    if (mediaRecorder.current) {
-      mediaRecorder.current.stop();
+  const startListening = () => SpeechRecognition.startListening({ continuous: true, language: source_lang });
+  const stopListening = () => SpeechRecognition.stopListening();
 
-      // Ensure the stop method is called after a short delay
-      setTimeout(() => {
-        // Reset the microphone stream
-        const stream = mediaRecorder.current?.stream;
-        if (stream) {
-          stream.getTracks().forEach((track) => track.stop());
-        }
-      }, 100);
+  const speak = (text, source_lang, speed) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = source_lang;
+    utterance.rate = speed; // Set the speed of the speech
+
+    const voices = window.speechSynthesis.getVoices();
+    const Voice = voices.find(voice => voice.lang.startsWith(source_lang));
+    if (Voice) {
+      utterance.voice = Voice; // Set the voice
     }
-  };
 
-  const sendAudioToServer = async (audioBlob: Blob) => {
-    try {
-      setLoading(true);
-
-      // Create a FormData object and append the audioBlob with a key
-      const formData = new FormData();
-      formData.append('voice', audioBlob, 'voice.wav');
-
-      // Send the FormData to the Flask route using axios
-      const response = await axios.post("/api/voice-chat", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      setUserMessage(response.data.chatbotResponse);
-    } catch (error) {
-      console.error('Error sending audio to server:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+    window.speechSynthesis.speak(utterance);
+};
 
 
   const handleSendMessage = async () => {
@@ -102,6 +71,7 @@ const ChatWidget: React.FC = () => {
         { role: 'chatbot', message: chatbotResponse },
       ];
       setChatHistory(newChatHistoryWithResponse);
+      speak(data.chatbotResponse, "en-US", 2)
     } catch (error) {
       console.error('Error fetching chatbot response:', error);
     } finally {
@@ -114,12 +84,14 @@ const ChatWidget: React.FC = () => {
 
 
   const handleStartVoiceInput = () => {
-    startRecording();
+    startListening();
     setListening(true);
   };
 
   const handleStopVoiceInput = () => {
-    stopRecording();
+    stopListening();
+    setUserMessage(transcript);
+    resetTranscript();
     setListening(false);
   };
 
@@ -135,12 +107,12 @@ const ChatWidget: React.FC = () => {
       }
     });
   };
-  
+
   const parseNewlines = (text) => {
     if (Array.isArray(text)) {
       return text; // Return as it is if it's already an array
     }
-  
+
     return text.split("\n").map((line, index) => (
       <span key={index}>
         {line}
@@ -153,34 +125,34 @@ const ChatWidget: React.FC = () => {
     if (typeof text !== 'string') {
       return text; // Return as it is if it's not a string
     }
-  
+
     // Regular expression to find links in the format [link text](url)
     const linkRegex = /\[(.*?)\]\((.*?)\)/g;
     let result = [];
     let lastIndex = 0;
     let match;
-  
+
     // Iterate over all matches
     while ((match = linkRegex.exec(text)) !== null) {
       // Push text before the link
       result.push(text.substring(lastIndex, match.index));
-  
+
       // Push the link
       result.push(
-        <a key={match.index} style={{color: "blue"}} href={match[2]} target="_blank" rel="noopener noreferrer">
+        <a key={match.index} style={{ color: "blue" }} href={match[2]} target="_blank" rel="noopener noreferrer">
           {match[1]}
         </a>
       );
-  
+
       lastIndex = match.index + match[0].length;
     }
-  
+
     // Push the remaining text after the last link
     result.push(text.substring(lastIndex));
     return result;
   };
-  
-  
+
+
 
   return (
     <div>
@@ -202,7 +174,7 @@ const ChatWidget: React.FC = () => {
                 ) : (
                   <div>
                     <strong>Chatbot:</strong><br></br>
-                     {parseMessage(item.message)}
+                    {parseMessage(item.message)}
                   </div>
                 )}
               </div>
@@ -214,6 +186,11 @@ const ChatWidget: React.FC = () => {
               type="text"
               placeholder="Type your message..."
               value={userMessage}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSendMessage();
+                }
+              }}
               onChange={(e) => setUserMessage(e.target.value)}
             />
             <button onClick={handleSendMessage} style={{ marginRight: '10px' }}>

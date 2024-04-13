@@ -1,6 +1,6 @@
 import { ReactElement } from 'react'
 import { Box, SimpleGrid, Icon, Text, Stack, Flex } from '@chakra-ui/react'
-import { FcAssistant, FcDonate, FcInTransit } from 'react-icons/fc'
+import { FcGlobe, FcFinePrint, FcHeadset } from 'react-icons/fc'
 
 interface FeatureProps {
  title: string
@@ -41,10 +41,10 @@ export default function SimpleThreeColumns() {
           transition='transform 0.2s'
         >
           <Feature
-            icon={<Icon as={FcAssistant} w={10} h={10} />}
-            title={'Lifetime Support'}
+            icon={<Icon as={FcGlobe} w={10} h={10} />}
+            title={'Multilingual'}
             text={
-              'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore...'
+              'Course offers contents with Multilingual support enabling students to access educational materials in their preferred language'
             }
           />
         </Box>
@@ -57,10 +57,10 @@ export default function SimpleThreeColumns() {
           transition='transform 0.2s'
         >
           <Feature
-            icon={<Icon as={FcDonate} w={10} h={10} />}
-            title={'Unlimited Donations'}
+            icon={<Icon as={FcFinePrint} w={10} h={10} />}
+            title={'Quiz'}
             text={
-              'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore...'
+              'Supports Theoretical Quiz, Application Quiz and Audio-Based Quiz to evaluate the knownledge'
             }
           />
         </Box>
@@ -73,10 +73,10 @@ export default function SimpleThreeColumns() {
           transition='transform 0.2s'
         >
           <Feature
-            icon={<Icon as={FcInTransit} w={10} h={10} />}
-            title={'Instant Delivery'}
+            icon={<Icon as={FcHeadset} w={10} h={10} />}
+            title={'Audio & PDFS'}
             text={
-              'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore...'
+              'Generate Audios and pdf of the courses and download it for offline use'
             }
           />
         </Box>
