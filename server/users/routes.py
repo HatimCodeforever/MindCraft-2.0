@@ -355,7 +355,7 @@ def trending_query(domain, module_name, summary, source_lang):
 
     images = module_image_from_web(module.module_name)
     with ThreadPoolExecutor() as executor:
-        submodules = generate_submodules_from_web(module.module_name)
+        submodules = generate_submodules_from_web(module.module_name,module.summary)
         print(submodules)
         keys_list = list(submodules.keys())
         submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
@@ -669,7 +669,7 @@ def course_overview(module_id, source_language, websearch):
     # if submodules are not generated, generate and save them in the database
     with ThreadPoolExecutor() as executor:
         if websearch == "true":
-            submodules = generate_submodules_from_web(module.module_name)
+            submodules = generate_submodules_from_web(module.module_name,module.summary)
             print(submodules)
             keys_list = list(submodules.keys())
             images_list=[]
@@ -1177,4 +1177,18 @@ def evaluate_quiz(source_language):
         return jsonify({"error": "An error occurred during evaluation"}), 500
 ###################################################################
     
-
+@users.route('/delete-info', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def delete_info():
+    module_id = session.get("module_id", None)
+    user_id = session.get("user_id", None)
+    ongoing_module = OngoingModule.query.filter_by(user_id=user_id, module_id=module_id).first()
+    if ongoing_module:
+        db.session.delete(ongoing_module)
+        db.session.commit()
+    module = Module.query.filter_by(module_id=module_id).first()
+    if module:
+        db.session.delete(module)
+        db.session.commit()
+    return jsonify({"message": "An error occurred during evaluation"}), 200
+    

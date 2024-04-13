@@ -150,9 +150,9 @@ the summaries and ensuring the modules are appropriately {level} in difficulty.
 
     return output
 
-def generate_submodules_from_web(module_name):
+def generate_submodules_from_web(module_name, summary):
     tavily_client = TavilyClient(api_key=tavily_api_key1)
-    search_result = tavily_client.get_search_context(module_name, search_depth="advanced", max_tokens=4000)
+    search_result = tavily_client.get_search_context(module_name + summary, search_depth="advanced", max_tokens=4000)
 
     sub_module_generation_prompt= """You are an educational assistant named ISAAC. \
 You will be provided with a module name and information on that module from the internet.
@@ -221,6 +221,7 @@ Be a good educational assistant and craft the best way to explain the sub-module
         )
         print('Module Generated:', key, '!')
         output = ast.literal_eval(completion.choices[0].message.content)
+        output['subject_name'] = val
         print(output)
         all_content.append(output)
         time.sleep(3)
