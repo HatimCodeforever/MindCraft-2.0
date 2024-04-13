@@ -135,4 +135,17 @@ class Module(db.Model):
     pursued_by = association_proxy('onmodule_user_association', 'user')
 
     def __repr__(self):
-        return f'<module_name={self.module_name} topic_id={self.topic_id}> level={self.level} summary={self.summary}>'
+        return f'<module_name={self.module_name} topic_id={self.topic_id} level={self.level} summary={self.summary}>'
+
+    def to_dict(self):
+        return {
+            'module_id': self.module_id,
+            'module_name': self.module_name,
+            'topic_id': self.topic_id,
+            'websearch': self.websearch,
+            'level': self.level,
+            'summary': self.summary,
+            'submodule_content': self.submodule_content,
+            'image_urls': self.image_urls,
+            'video_urls': self.video_urls
+        }

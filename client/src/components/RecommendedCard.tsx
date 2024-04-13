@@ -97,13 +97,10 @@ const RecommendedCard: React.FC<CourseCardProps> = ({ moduleTopic, moduleSummary
               <Stack spacing='3'>
                 <Stack spacing='3' direction="row" justify="space-between" align="center">
                  <Heading size='md'>{moduleTopic}</Heading>
-                 <StarRating rating={2} />
+                 <StarRating rating={4} />
                 </Stack>
                 <Text>
                  {moduleSummary}
-                </Text>
-                <Text color='blue.600' fontSize='2xl'>
-                 $450
                 </Text>
               </Stack>
               {/* Add the StarRating component here */}

@@ -9,7 +9,7 @@ interface WorkingCardProps {
 
 // Custom Progress Bar Component
 const CustomProgressBar: React.FC<{ value: number }> = ({ value }) => {
-    const progressPercentage = value;
+    let progressPercentage = value;
     return (
         <Box width="100%" height="20px" bg="gray.200" borderRadius="md">
             <Box
@@ -27,9 +27,20 @@ const WorkingCard: React.FC<WorkingCardProps> = ({
     initialProgress = 0,
     moduleSummary = '', 
 }) => {
+    let progressPercentage = 0;
+    switch(initialProgress) {
+        case 1:
+            progressPercentage = 30;
+            break;
+        case 2:
+            progressPercentage = 60;
+            break;
+        default:
+            progressPercentage = 0; // Default to 0 if value is neither 1 nor 2
+    }
     const [lessonName, setLessonName] = React.useState(initialLessonName);
-    const [progress, setProgress] = React.useState(initialProgress);
-
+    const [progress, setProgress] = React.useState(progressPercentage);
+    
     const handleLessonNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setLessonName(event.target.value);
     };
@@ -40,7 +51,8 @@ const WorkingCard: React.FC<WorkingCardProps> = ({
     };
 
     return (
-        <Box bg="white" p={4} borderRadius="md" boxShadow="md" margin={6} width={500} height={350}>
+        <Box bg="white" p={4} borderRadius="md" boxShadow="md" margin={6} width={['100%', '90%', '80%', '450px']}
+        height="90%">
 
             <VStack spacing={4} align="start">
                 <Heading size="md">Jump back in</Heading>

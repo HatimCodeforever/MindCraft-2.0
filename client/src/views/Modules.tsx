@@ -39,6 +39,7 @@ function Modules() {
   const [webSearchOn, setWebSearchOn] = useState(false);
   const languages = [
     { code: 'auto', name: 'Language : Auto' },
+    { code: 'en', name: 'English' },
     { code: 'hi', name: 'Hindi' },
     { code: 'te', name: 'Telugu' },
     { code: 'ta', name: 'Tamil' },
@@ -49,8 +50,7 @@ function Modules() {
     { code: 'pa', name: 'Punjabi' },
     { code: 'de', name: 'German' },
     { code: 'es', name: 'Spanish' },
-    { code: 'fr', name: 'French' },
-    { code: 'en', name: 'English' },
+    { code: 'fr', name: 'French' }
   ];
 
   const fetchData = async (route: string, setDataFunction: any, setModuleIdFunction: any) => {
