@@ -100,7 +100,7 @@ export default function App() {
           <p style={{ maxHeight: '300px', width: '300px' }}>{npcText}</p>
         </div>)}
       </Html>
-      <OrbitControls enableZoom={false} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 2.25} />
+      <OrbitControls enableZoom={true} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 2.25} />
     </Canvas>
   );
 }

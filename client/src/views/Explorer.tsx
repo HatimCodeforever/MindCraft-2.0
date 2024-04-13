@@ -9,27 +9,18 @@ interface ModelProps {
 export const Model: React.FC<ModelProps> = (props: ModelProps) => {
  const group = useRef<THREE.Group>();
  const { nodes, materials, animations } = useGLTF('/cartoon_teacher_model.glb');
- const { actions } = useAnimations(animations, group.current);
 
- const handleAnimation = (animationName: string): void => {
-    const from = animationName === "talk" ? 'Armature|mixamo.com|Layer0.005' : 'Armature|mixamo.com|Layer0';
-    const to = animationName === "talk" ? 'Armature|mixamo.com|Layer0' : 'Armature|mixamo.com|Layer0.004';
-
-    if (actions[from]?.isRunning()) {
-      actions[from].fadeOut(0.3);
-    }
-
-    actions[to]?.reset().fadeIn(0.3).play();
- };
-
- useEffect(() => {
-    handleAnimation(props.animationName);
- }, [props.animationName]);
 
  // Render the model
  return (
     <group ref={group}>
-      <primitive object={nodes.Sketchfab_Scene} dispose={null} scale={[10, 10, 10]} />
+      <primitive object={nodes.Sketchfab_Scene} dispose={null} scale={[5, 5, 5]} />
+      <hemisphereLight intensity={5} groundColor="black" />
+      <pointLight intensity={1} position={[0, 10, 0]} />
+      {/* Additional lights for more realistic lighting */}
+      <rectAreaLight width={3} height={3} color="#ffbdf4" intensity={5.6} position={[-2, 0, 5]} lookAt={[0, 0, 0]} penumbra={1} castShadow />
+      <rectAreaLight width={3} height={3} color="#bdefff" intensity={2.6} position={[2, 1, 4]} lookAt={[0, 0, 0]} penumbra={2} castShadow />
+      <rectAreaLight width={2} height={2} color="#fff" intensity={54} position={[1, 4, -2]} rotation={[0, 180, 0]} castShadow />
     </group>
  );
 };
