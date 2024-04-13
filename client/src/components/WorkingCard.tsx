@@ -40,7 +40,8 @@ const WorkingCard: React.FC<WorkingCardProps> = ({
     };
 
     return (
-        <Box bg="white" p={4} borderRadius="md" boxShadow="md" margin={6} width={500} height={350}>
+        <Box bg="white" p={4} borderRadius="md" boxShadow="md" margin={6} width={['100%', '90%', '80%', '450px']}
+        height="90%">
 
             <VStack spacing={4} align="start">
                 <Heading size="md">Jump back in</Heading>

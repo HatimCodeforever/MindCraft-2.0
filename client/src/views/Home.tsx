@@ -146,16 +146,18 @@ function Home() {
                 ))}
               </Grid>
             </TabPanel>
-            <TabPanel style={{ display: 'flex', flexDirection: 'row' }}>
+            <TabPanel maxWidth={"370mm"}>
+            <SimpleGrid columns={3} spacing={10}>
               {ongoingCourses.map((course, index) => (
                 <SlideFade in={inProp} transition={{ enter: { duration: 0.7 } }} offsetY='50px' key={course.moduleTopic}>
                   <WorkingCard
                     initialLessonName={course.module_name}
                     initialProgress={50}
-                    moduleSummary={course.moduleSummary} // Pass the module summary
+                    moduleSummary={course.module_summary} // Pass the module summary
                   />
                 </SlideFade>
               ))}
+              </SimpleGrid>
             </TabPanel>
 
             <TabPanel>
