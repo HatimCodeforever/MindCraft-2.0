@@ -217,22 +217,8 @@ def getuser():
     user_completed_modules = user.user_module_association
     user_course = user.course_name
     user_interest = user.interests
-    print("course--------------------------------------------:-", user_course)
-    print("Interest-----------------------------------------------:-", user_interest)
     all_ongoing_modules_names = ""
-    for on_module in user_ongoing_modules:
-        temp = {}
-        module = Module.query.get(on_module.module_id)
-        topic = Topic.query.get(module.topic_id)
-        temp['module_name'] = module.module_name
-        temp['topic_name'] = topic.topic_name
-        temp['module_summary'] = module.summary
-        temp['level'] = module.level
-        temp['date_started'] = on_module.date_started.strftime("%d/%m/%Y %H:%M")
-        temp['quiz_score'] = [None, None, None]
-        all_ongoing_modules_names += f"{module.module_name},"
-        ongoing_modules.append(temp)
-
+  
     for comp_module in user_completed_modules:
         temp = {}
         module = Module.query.get(comp_module.module_id)
@@ -253,7 +239,9 @@ def getuser():
             onmodule = OngoingModule.query.filter_by(user_id=user.user_id, module_id=module.module_id, level=module.level).first()
             print("why!!!!!!!!!!!!!!!!!!!--------------------",onmodule)
             temp['date_started'] = onmodule.date_started.strftime("%d/%m/%Y %H:%M")
-            temp['quiz_score'] = [comp_module.theory_quiz_score, comp_module.application_quiz_score, comp_module.assignment_score]
+            quiz_list = [comp_module.theory_quiz_score, comp_module.application_quiz_score, comp_module.assignment_score]
+            temp['quiz_score'] = [x for x in quiz_list if x is not None]
+            all_ongoing_modules_names += f"{module.module_name},"
             ongoing_modules.append(temp)        
 
     
@@ -654,6 +642,8 @@ def course_overview(module_id, source_language, websearch):
     
     # check if submodules are saved in the database for the given module_id
     module = Module.query.get(module_id)
+    other_modules = Module.query.filter(Module.topic_id == module.topic_id,Module.level==module.level,Module.websearch==module.websearch, Module.module_id != module_id).all()
+    modules_dict_list = [module.to_dict() for module in other_modules]
     module_info = {}
     module_info['module_name']=module.module_name
     module_info['summary']=module.summary
@@ -663,7 +653,7 @@ def course_overview(module_id, source_language, websearch):
         print("language",source_language)
         trans_submodule_content = translate_submodule_content(module.submodule_content, source_language)
         print(f"Translated submodule content: {trans_submodule_content}")
-        return jsonify({"message": "Query successful","module": module_info ,"images": module.image_urls,"videos": module.video_urls, "content": trans_submodule_content, "response": True}), 200
+        return jsonify({"message": "Query successful","other_modules":modules_dict_list,"module": module_info ,"images": module.image_urls,"videos": module.video_urls, "content": trans_submodule_content, "response": True}), 200
     
     # images = module_image_from_web(module.module_name)
     # if submodules are not generated, generate and save them in the database
@@ -712,7 +702,7 @@ def course_overview(module_id, source_language, websearch):
     trans_submodule_content = translate_submodule_content(content, source_language)
     print(f"Translated submodule content: {trans_submodule_content}")
     
-    return jsonify({"message": "Query successful","module": module_info ,"images": module.image_urls,"videos": module.video_urls ,"content": trans_submodule_content,"sub_modules": submodules, "response": True}), 200
+    return jsonify({"message": "Query successful","other_modules": modules_dict_list,"module": module_info ,"images": module.image_urls,"videos": module.video_urls ,"content": trans_submodule_content,"sub_modules": submodules, "response": True}), 200
 
 
 # module query --> generate mutlimodal content (with images) for submodules in a module
@@ -733,9 +723,10 @@ def query_module(module_id, source_language, websearch):
     
     # check if submodules are saved in the database for the given module_id
     module = Module.query.get(module_id)
-    ongoing_module = OngoingModule(user_id=user.user_id, module_id=module_id, level=module.level)
+    ongoing_module = OngoingModule.query.filter(OngoingModule.user_id==user.user_id, OngoingModule.module_id==module_id)
     if not ongoing_module:
-        db.session.add(ongoing_module)
+        ongoing_modules = OngoingModule(user_id=user.user_id, module_id=module_id, level=module.level)
+        db.session.add(ongoing_modules)
         db.session.commit()
     if module.submodule_content is not None:
         trans_submodule_content = translate_submodule_content(module.submodule_content, source_language)

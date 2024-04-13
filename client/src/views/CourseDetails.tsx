@@ -60,6 +60,7 @@ export default function Simple() {
     const [selectedSubject, setSelectedSubject] = useState();
     const [images, setImages] = useState([]);
     const [videos, setVideos] = useState([]);
+    const [othermoduleData, setothermoduleData] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const source_lang = localStorage.getItem('source_lang');
 
@@ -74,6 +75,7 @@ export default function Simple() {
                 setVideos(response.data.videos);
                 setData(response.data.content);
                 setmoduleData(response.data.module);
+                setothermoduleData(response.data.other_modules)
                 setSelectedSubject(response.data.content.length > 0 ? response.data.content[0] : null);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -135,7 +137,7 @@ export default function Simple() {
                                                 >
                                                     <Icon as={TimeIcon} boxSize="24px" color="white" />
                                                 </Box>
-                                                <Th fontSize={14}>Durations: 10 hours</Th>
+                                                <Th fontSize={14}>Durations: {Object.keys(data).length/2} hours</Th>
                                             </Flex>
                                         </Stack>
                                     </Tr>
@@ -221,94 +223,32 @@ export default function Simple() {
                         </TableContainer>
                         <Box border='1px solid black' borderRadius='md' p={4} overflow='hidden'>
                             <Stack>
-                                <Heading fontSize={20} marginTop={2}>New Courses</Heading>
-                                <Card
-                                    direction={{ base: 'column', sm: 'row' }}
-                                    overflow='hidden'
-                                    variant='outline'
-                                    _hover={{ transform: 'scale(1.05)' }}
-                                    transition='transform 0.2s'
-                                >
-                                    <Image
-                                        objectFit='cover'
-                                        maxW={{ base: '100%', sm: '100px' }}
-                                        maxH={{ sm: "100px" }}
-                                        src={Stud1}
-                                        alt='Caffe Latte'
-                                        marginTop={2}
-                                        marginLeft={3}
-                                    />
+                                <Heading fontSize={20} marginTop={2}>Other Modules</Heading>
+                                {othermoduleData.map(module => (
+                                    <Card
+                                        direction={{ base: 'column', sm: 'row' }}
+                                        overflow='hidden'
+                                        variant='outline'
+                                        _hover={{ transform: 'scale(1.05)' }}
+                                        transition='transform 0.2s'
+                                    >
+                                        <Image
+                                            objectFit='cover'
+                                            maxW={{ base: '100%', sm: '100px' }}
+                                            maxH={{ sm: "100px" }}
+                                            src={Stud1}
+                                            alt='Caffe Latte'
+                                            marginTop={2}
+                                            marginLeft={3}
+                                        />
+                                        <Stack>
+                                            <CardBody>
+                                                <Heading size='md'> {module.module_name}</Heading>
+                                            </CardBody>
 
-                                    <Stack>
-
-                                        <CardBody>
-                                            <Text py='2'>
-                                                by Advance
-                                            </Text>
-                                            <Heading size='md'> Modern Langugues</Heading>
-                                            <StarRating rating={4} />
-                                        </CardBody>
-
-                                    </Stack>
-                                </Card>
-                                <Card
-                                    direction={{ base: 'column', sm: 'row' }}
-                                    overflow='hidden'
-                                    variant='outline'
-                                    _hover={{ transform: 'scale(1.05)' }}
-                                    transition='transform 0.2s'
-                                >
-                                    <Image
-                                        objectFit='cover'
-                                        maxW={{ base: '100%', sm: '100px' }}
-                                        maxH={{ sm: "100px" }}
-                                        src={Stud2}
-                                        alt='Caffe Latte'
-                                        marginTop={2}
-                                        marginLeft={3}
-                                    />
-
-                                    <Stack>
-
-                                        <CardBody>
-                                            <Text py='2'>
-                                                by Advance
-                                            </Text>
-                                            <Heading size='md'> Modern Langugues</Heading>
-                                            <StarRating rating={4} />
-                                        </CardBody>
-
-                                    </Stack>
-                                </Card>
-                                <Card
-                                    direction={{ base: 'column', sm: 'row' }}
-                                    overflow='hidden'
-                                    variant='outline'
-                                    _hover={{ transform: 'scale(1.05)' }}
-                                    transition='transform 0.2s'
-                                >
-                                    <Image
-                                        objectFit='cover'
-                                        maxW={{ base: '100%', sm: '100px' }}
-                                        maxH={{ sm: "100px" }}
-                                        src={Stud3}
-                                        alt='Caffe Latte'
-                                        marginTop={2}
-                                        marginLeft={3}
-                                    />
-
-                                    <Stack>
-
-                                        <CardBody>
-                                            <Text py='2'>
-                                                by Advance
-                                            </Text>
-                                            <Heading size='md'> Modern Langugues</Heading>
-                                            <StarRating rating={4} />
-                                        </CardBody>
-
-                                    </Stack>
-                                </Card>
+                                        </Stack>
+                                    </Card>
+                                ))}
 
                             </Stack>
                         </Box>

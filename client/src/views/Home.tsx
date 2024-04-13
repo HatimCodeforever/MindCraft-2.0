@@ -152,7 +152,7 @@ function Home() {
                 <SlideFade in={inProp} transition={{ enter: { duration: 0.7 } }} offsetY='50px' key={course.moduleTopic}>
                   <WorkingCard
                     initialLessonName={course.module_name}
-                    initialProgress={50}
+                    initialProgress={course.quiz_score.length}
                     moduleSummary={course.module_summary} // Pass the module summary
                   />
                 </SlideFade>
