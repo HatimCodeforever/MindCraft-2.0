@@ -18,7 +18,6 @@ import Footer from "../components/footer";
 import MyCard from "../components/myCard";
 import axios from "axios";
 import { BsFire } from "react-icons/bs";
-import FileUploadButton from './FileUploadButton';
 import { useSessionCheck } from "./useSessionCheck";
 import ChatWidget from '../components/Chat_widget'
 
@@ -140,9 +139,6 @@ function Modules() {
             onChange={handleWebSearchToggle}
           />
         </Flex>
-        <Box paddingTop={2}>
-          <FileUploadButton onFileSelect={setSelectedFile} />
-        </Box>
 
         <Box mt={4} ml={4}>
           <Input
