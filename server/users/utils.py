@@ -271,35 +271,45 @@ Follow the provided JSON format diligently, incorporating information from the s
 #     image_links = [i['original'] for i in image_results[:10]]
 #     return image_links
 
-def module_image_from_web(module):
-    url = "https://google.serper.dev/images"
-    payload = json.dumps({
-        "q": module
-    })
-    headers = {
-        'X-API-KEY': serper_api_key1,
-        'Content-Type': 'application/json'
-    }
+def module_image_from_web(submodules):
+    print('FETCHING IMAGES...')
+    keys_list = list(submodules.keys())
+    images_list=[]
+    for key in keys_list:
+        url = "https://google.serper.dev/images"
+        payload = json.dumps({
+            "q": submodules[key]
+        })
+        headers = {
+            'X-API-KEY': serper_api_key1,
+            'Content-Type': 'application/json'
+        }
 
-    response = requests.request("POST", url, headers=headers, data=payload)
-    json_response = json.loads(response.text)
-    image_results = json_response["images"]
-    image_links = [i["imageUrl"] for i in image_results]
-    return image_links
+        response = requests.request("POST", url, headers=headers, data=payload)
+        json_response = json.loads(response.text)
+        image_results = json_response["images"]
+        image_links = [i["imageUrl"] for i in image_results]
+        images_list.append(image_links)
+    return images_list
 
-def module_videos_from_web(module):
-    params = {
-    "q": module,
-    "engine": "google_videos",
-    "ijn": "0",
-    "api_key": google_serp_api_key
-    }
+def module_videos_from_web(submodules):
+    print('FETCHING VIDEOS...')
+    keys_list = list(submodules.keys())
+    videos_list=[]
+    for key in keys_list:
+        params = {
+        "q": submodules,
+        "engine": "google_videos",
+        "ijn": "0",
+        "api_key": google_serp_api_key
+        }
 
-    search = GoogleSearch(params)
-    results = search.get_dict()
-    video_results = results["video_results"]
-    yt_links = [i['link'] for i in video_results[:10]]
-    return yt_links
+        search = GoogleSearch(params)
+        results = search.get_dict()
+        video_results = results["video_results"]
+        yt_links = [i['link'] for i in video_results[:10]]
+        videos_list.append(yt_links)
+    return videos_list
 
 
 def generate_pdf(pdf_file_path, modulename, module_summary, submodule_content, src_lang):
