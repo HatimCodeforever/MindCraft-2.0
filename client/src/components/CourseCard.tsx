@@ -149,13 +149,13 @@ const CourseCard: React.FC<CardProps> = ({ courseData }) => {
         </Box>
       )}
 
-      <ReactFusioncharts
+      {/* <ReactFusioncharts
         type="column3d"
         width="50%"
         height="100%"
         dataFormat="JSON"
         dataSource={dataSource}
-      />
+      /> */}
     </Box>
   );
 };

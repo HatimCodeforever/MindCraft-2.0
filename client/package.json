@@ -37,6 +37,7 @@
     "react-router-dom": "^6.18.0",
     "react-speech-recognition": "^3.10.0",
     "react-three-fiber": "^6.0.13",
+    "recharts": "^2.12.6",
     "regenerator-runtime": "^0.14.1",
     "sweetalert2": "^11.6.13",
     "typewriter-effect": "^2.21.0",

@@ -77,7 +77,7 @@ const RecommendedCard: React.FC<CourseCardProps> = ({ moduleTopic, moduleSummary
             top: 0,
             left: 0,
             width: "100%",
-            height: "52%",
+            height: "310px",
             backgroundColor: "rgba(177, 156, 217, 0.5)",
             opacity: 0,
             transform: "translateX(-100%)",
