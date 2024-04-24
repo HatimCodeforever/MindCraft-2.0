@@ -3,11 +3,34 @@ import { Input, Text, Image, Stepper, Step, StepIndicator, StepStatus, Box, Stac
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import Nav from '../components/navbar';
 import Footer from '../components/footer';
-import box from '../assets/images/box.gif'
+import box from '../assets/images/box.gif';
+import axios from 'axios';
+import { UnorderedList, ListItem, Spinner, List } from "@chakra-ui/react";
+import { Editable, EditablePreview, EditableInput} from "@chakra-ui/react";
+import { useNavigate } from 'react-router-dom';
+
 
 const PersonalisedCourses = () => {
     const [text, setText] = useState('');
     const [text2, setText2] = useState('');
+    const [inputValue, setInputValue] = useState('');
+    const [descriptionValue, setDescriptionValue] = useState('');
+    const [submodules, setsubModules] = useState([]);
+    const [isLoadingData, setIsLoadingData] = useState(false);
+    const navigate = useNavigate();
+
+    const sendDataToAPI = async (data) => {
+        try {
+            setIsLoadingData(true);
+            // Make POST request to your Flask API route
+            const response = await axios.post('/api/query2/doc-upload', data);
+            setsubModules(response.data.submodules)
+            setIsLoadingData(false);
+        } catch (error) {
+            console.error('Error sending data:', error);
+        }
+    };
+
     const messages = [
         "Learn Machine Learning in 8 weeks",
         "Master Linear Algebra"
@@ -20,8 +43,26 @@ const PersonalisedCourses = () => {
     let index = 0;
     const [selectedFile, setSelectedFile] = useState(null);
 
+    const handleChange = (event) => {
+        setInputValue(event.target.value);
+    };
+
+    const handleDescriptionChange = (event) => {
+        setDescriptionValue(event.target.value);
+    };
+
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0]);
+    };
+
+    const handleNextStep3 = () => {
+        const formData = new FormData();
+        formData.append('title', inputValue);
+        formData.append('description', descriptionValue);
+        formData.append('file', selectedFile);
+
+        // Send data to Flask route using Axios
+        sendDataToAPI(formData);
     };
 
     const handleDrop = (e) => {
@@ -61,7 +102,8 @@ const PersonalisedCourses = () => {
                 <Box textAlign="center" marginTop={4}
                     style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}> {/* Increased maxWidth */}
                     <Heading size="lg" margin={7}>Enter your Course title</Heading>
-                    <Input placeholder='Machine Learning' size='lg' />
+                    <Input placeholder='Machine Learning' value={inputValue}
+                        onChange={handleChange} size='lg' />
                     <Stack align="end" margin={5} marginBottom={45}>
                         <Button
                             colorScheme='purple'
@@ -87,6 +129,8 @@ const PersonalisedCourses = () => {
                     <Heading size="lg" margin={7}>Describe your course</Heading>
                     <Textarea
                         placeholder={text}
+                        value={descriptionValue}
+                        onChange={handleDescriptionChange}
                         style={{
                             width: '700px', // Adjusted width to 100%
                             height: '250px',
@@ -191,6 +235,7 @@ const PersonalisedCourses = () => {
                             width={200}
                             disabled={!text.trim()}
                             onClick={() => {
+                                handleNextStep3(); // Call the function to send data to Flask
                                 setActiveStep(prevStep => prevStep + 1);
                                 setText('');
                             }}
@@ -204,39 +249,47 @@ const PersonalisedCourses = () => {
         {
             title: 'Step 4', content: <div>
                 <div>
-                    <Box textAlign="center" marginTop={4}
-                        style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}> {/* Increased maxWidth */}
-                        <Heading size="lg" margin={7}>What is your course about ?</Heading>
-                        <Textarea
-                            placeholder={text2}
-                            style={{
-                                width: '700px', // Adjusted width to 100%
-                                height: '250px',
-                                padding: '10px',
-                                fontSize: '1.2em',
-                                color: '#999',
-                                border: '1px solid #ddd',
-                                borderRadius: '4px',
-                                resize: 'none',
-                                margin: "10px"
-                            }}
-                        />
-                        <Stack align="end" margin={5} marginBottom={45}>
-                            <Button
-                                colorScheme='purple'
-                                size='lg'
-                                width={200}
-                                disabled={!text.trim()}
-                                onClick={() => {
-                                    setActiveStep(prevStep => prevStep + 1);
-                                    setText('');
-                                }}
-                            >
-                                Next
-                            </Button>
-                        </Stack>
-                    </Box>
+                    {
+                        isLoadingData ? (
+                            <Box textAlign="center" height={"500px"} marginTop={4} style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+                                <Spinner size="xl" color="purple.500" />
+                                <Text mt={4}>Loading...</Text>
+                            </Box>
+                        ) : (
+                            <>
+                                <div>
+                                    <Box textAlign="center" marginTop={4} style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+                                        {/* Increased maxWidth */}
+                                        <Heading size="lg" margin={7}>Your Generated Submodules</Heading>
+                                        <List spacing={3}>
+                                            {submodules.map((item, index) => (
+                                                <Editable key={index} defaultValue={item} onChange={(value) => handleEdit(value, index)}>
+                                                    <EditablePreview />
+                                                    <EditableInput />
+                                                </Editable>
+                                            ))}
+                                        </List>
 
+                                        <Stack align="center" margin={5} marginBottom={45}>
+                                            <Button
+                                                colorScheme='purple'
+                                                size='lg'
+                                                width={200}
+                                                disabled={!text.trim()}
+                                                onClick={() => {
+                                                    navigate('/pers-content');
+                                                    setActiveStep(prevStep => prevStep + 1);
+                                                    setText('');
+                                                }}
+                                            >
+                                                Generate Content
+                                            </Button>
+                                        </Stack>
+                                    </Box>
+                                </div>
+                            </>
+                        )
+                    }
                 </div>
             </div>
         },

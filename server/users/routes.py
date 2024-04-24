@@ -1,6 +1,6 @@
 from flask import request, session, jsonify,  Blueprint, send_file
 from server import db, bcrypt
-from server.models import User, Topic, Module, Query, CompletedModule, OngoingModule
+from server.models import User, Topic, Module, Query, CompletedModule, OngoingModule,PersonalizedCompletedModule,PersonalizedModule,PersonalizedOngoingModule
 from concurrent.futures import ThreadPoolExecutor
 import os
 from flask_cors import cross_origin
@@ -18,6 +18,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
+import secrets
+import string
 
 users = Blueprint(name='users', import_name=__name__)
 
@@ -220,7 +222,7 @@ def getuser():
     user_interest = user.interests
     all_ongoing_modules_names = ""
   
-    for comp_module in user_completed_modules:
+    for comp_module in user_ongoing_modules:
         temp = {}
         module = Module.query.get(comp_module.module_id)
         topic = Topic.query.get(module.topic_id)
@@ -228,24 +230,24 @@ def getuser():
         temp['topic_name'] = topic.topic_name
         temp['module_summary'] = module.summary
         temp['level'] = module.level
-        
-        if comp_module.theory_quiz_score is not None and comp_module.application_quiz_score is not None and comp_module.assignment_score is not None:
-            temp['quiz_score'] = [comp_module.theory_quiz_score, comp_module.application_quiz_score, comp_module.assignment_score]
-            completed_modules.append(temp)
+        all_ongoing_modules_names += f"{module.module_name},"
+        c_module = CompletedModule.query.filter(CompletedModule.module_id==comp_module.module_id,CompletedModule.user_id==user_id).first()
+        if c_module:
+            if c_module.theory_quiz_score is not None and c_module.application_quiz_score is not None and c_module.assignment_score is not None:
+                temp['quiz_score'] = [c_module.theory_quiz_score, c_module.application_quiz_score, c_module.assignment_score]
+                completed_modules.append(temp)
+            else:
+                temp['date_started'] = comp_module.date_started.strftime("%d/%m/%Y %H:%M")
+                quiz_list = [c_module.theory_quiz_score, c_module.application_quiz_score, c_module.assignment_score]
+                temp['quiz_score'] = [x for x in quiz_list if x is not None]
+                ongoing_modules.append(temp)
         else:
-            print("user",user.user_id)
-            print("user",module.module_id)
-            print("user",module.level)
+            temp['date_started'] = comp_module.date_started.strftime("%d/%m/%Y %H:%M")
+            temp['quiz_score'] = []
+            ongoing_modules.append(temp)
+            
 
-            onmodule = OngoingModule.query.filter_by(user_id=user.user_id, module_id=module.module_id, level=module.level).first()
-            print("why!!!!!!!!!!!!!!!!!!!--------------------",onmodule)
-            temp['date_started'] = onmodule.date_started.strftime("%d/%m/%Y %H:%M")
-            quiz_list = [comp_module.theory_quiz_score, comp_module.application_quiz_score, comp_module.assignment_score]
-            temp['quiz_score'] = [x for x in quiz_list if x is not None]
-            all_ongoing_modules_names += f"{module.module_name},"
-            ongoing_modules.append(temp)        
-
-    
+        
     query_message = ""
     user_queries = user.user_query_association
     # if user_queries is None:
@@ -452,7 +454,7 @@ def translate_evaluations(evaluations, target_language):
 
     return trans_eval
 
-@users.route('/query2/doc-upload/<string:topicname>/<string:level>/<string:source_lang>', methods=['POST'])
+@users.route('/query2/doc-upload/<string:topicname>/<string:level>/<string:source_lang>',methods=['POST'])
 def doc_query_topic(topicname,level,source_lang):
     user_id = session.get('user_id')
     print(session.get('user_id'))
@@ -538,6 +540,105 @@ def doc_query_topic(topicname,level,source_lang):
 
     return jsonify({"message": "Query successful", "topic_id":topic.topic_id, "topic":trans_topic_name, "source_language":source_language, "module_ids":module_ids, "content": trans_module_summary_content, "response":True}), 200
 
+
+@users.route('/query2/doc-upload',methods=['POST'])
+def personalized_module():
+    user_id = session.get('user_id')
+    print(session.get('user_id'))
+    if user_id is None:
+        return jsonify({"message": "User not logged in", "response":False}), 401
+    
+    # check if user exists
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({"message": "User not found", "response":False}), 404
+    
+    if 'file' not in request.files:
+        return 'No file part', 400
+    file = request.files['file']
+    if file.filename == '':
+        return 'No selected file', 400
+    if not os.path.exists("uploads"):
+        os.makedirs("uploads")
+    if file:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join("uploads", filename))
+    title = request.form['title']
+    description = request.form['description']
+    session['user_profile']=description
+    session['title']=title
+    DOCS_PATH = os.path.join("uploads", filename)
+    loader = PyPDFLoader(DOCS_PATH)
+    docs = loader.load()
+    docs_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    split_docs = docs_splitter.split_documents(docs)
+    TEXTBOOK_VECTORSTORE = FAISS.from_documents(split_docs, EMBEDDINGS)
+    TEXTBOOK_VECTORSTORE.save_local('user_docs')
+    print('CREATED VECTORSTORE')
+    VECTORDB_TEXTBOOK = FAISS.load_local('user_docs', EMBEDDINGS, allow_dangerous_deserialization=True)
+    submodules = generate_module_from_textbook(title,VECTORDB_TEXTBOOK)
+    values_list = list(submodules.values())
+    session['submodules']=submodules
+    return jsonify({"message": "Query successful","submodules":values_list,"response":True}), 200
+
+@users.route('/query2/doc_generate_content',methods=['GET'])
+def personalized_module_content():
+    user_id = session.get("user_id", None)
+    if user_id is None:
+        return jsonify({"message": "User not logged in", "response": False}), 401
+    
+    # check if user exists
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({"message": "User not found", "response": False}), 404
+    source_language ="en"
+    characters = string.ascii_letters + string.digits  # Alphanumeric characters
+    key = ''.join(secrets.choice(characters) for _ in range(7))
+    title=session['title']
+    description=session['user_profile']
+    VECTORDB_TEXTBOOK = FAISS.load_local('user_docs', EMBEDDINGS, allow_dangerous_deserialization=True)
+    # new_module = PersonalizedModule(
+    #     module_code=key,
+    #     module_name=modulename,
+    #     summary=modulesummary
+    # )
+    # db.session.add(new_module)
+    # db.session.commit()
+    # check if submodules are saved in the database for the given module_id
+    print("language",source_language)
+    with ThreadPoolExecutor() as executor:
+        submodules = session['submodules']
+        keys_list = list(submodules.keys())
+        future_images_list = executor.submit(module_image_from_web, submodules)
+        future_video_list = executor.submit(module_videos_from_web, submodules)
+        submodules_split_one = {key: submodules[key] for key in keys_list[:3]}
+        submodules_split_two = {key: submodules[key] for key in keys_list[3:]}
+        future_content_one = executor.submit(generate_content_from_textbook,title ,submodules_split_one,description,VECTORDB_TEXTBOOK,'first')
+        future_content_two = executor.submit(generate_content_from_textbook,title ,submodules_split_two,description,VECTORDB_TEXTBOOK,'second')
+
+    # Retrieve the results when both functions are done
+    content_one = future_content_one.result()
+    content_two = future_content_two.result()
+
+    content = content_one + content_two
+    images_list = future_images_list.result()
+    video_list = future_video_list.result()
+
+    # new_module.submodule_content = content
+    # new_module.image_urls = images_list
+    # new_module.video_urls = video_list
+    # db.session.commit()
+
+    # add module to ongoing modules for user
+    # ongoing_module = PersonalizedOngoingModule(user_id=user.user_id, module_id=new_module.module_id)
+    # db.session.add(ongoing_module)
+    # db.session.commit()
+    # translate submodule content to the source language
+    trans_submodule_content = translate_submodule_content(content, source_language)
+    print(f"Translated submodule content: {trans_submodule_content}")
+    
+    return jsonify({"message": "Query successful", "images": images_list,"videos": video_list, "content": trans_submodule_content, "response": True}), 200
+
 # query route --> if websearch is true then fetch from web and feed into model else directly feed into model
 # save frequently searched queries in database for faster retrieval
 @users.route('/query2/<string:topicname>/<string:level>/<string:websearch>/<string:source_lang>', methods=['GET'])
@@ -562,10 +663,13 @@ def query_topic(topicname,level,websearch,source_lang):
         source_language=source_lang
         print(f"Source Language: {source_language}")
 
+    trans_topic_name = ""
     # translate other languages input to english
-    trans_topic_name = GoogleTranslator(source='auto', target='en').translate(topicname)
-    print(f"Translated topic name: {trans_topic_name}")
-
+    if source_lang!="en":
+        trans_topic_name = GoogleTranslator(source=source_lang, target='en').translate(topicname)
+        print(f"Translated topic name: {trans_topic_name}")
+    else:
+        trans_topic_name = topicname
 # check if topic exists in database along with its modulenames and summaries
     topic = Topic.query.filter_by(topic_name=trans_topic_name.lower()).first()
     if topic is None:
@@ -1179,4 +1283,3 @@ def delete_info():
         db.session.delete(module)
         db.session.commit()
     return jsonify({"message": "An error occurred during evaluation"}), 200
-    

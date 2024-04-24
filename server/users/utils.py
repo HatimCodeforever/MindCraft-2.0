@@ -295,7 +295,7 @@ def module_videos_from_web(submodules):
     videos_list=[]
     for key in keys_list:
         params = {
-        "q": submodules,
+        "q": submodules[key],
         "engine": "google_videos",
         "ijn": "0",
         "api_key": google_serp_api_key
@@ -710,7 +710,7 @@ Context: {context}
 
 Follow the provided JSON format diligently."""
 
-  client = OpenAI()
+  client = OpenAI(api_key=openai_api_key1)
   completion = client.chat.completions.create(
           model = 'gpt-3.5-turbo-1106',
           messages = [
