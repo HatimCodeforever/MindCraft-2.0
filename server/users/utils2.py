@@ -35,6 +35,7 @@ serper_api_key2 = os.environ.get('SERPER_API_KEY2')
 google_api_key1 =  os.environ.get('GOOGLE_API_KEY1')
 google_api_key2 =  os.environ.get('GOOGLE_API_KEY2')
 google_api_key3 =  os.environ.get('GOOGLE_API_KEY3')
+print('API KEYS', google_api_key1, google_api_key2, google_api_key3)
 genai.configure(api_key=google_api_key1)
 
 google_serp_api_key = os.environ.get('GOOGLE_SERP_API_KEY')
@@ -50,19 +51,19 @@ GENERATION_CONFIG = {
 SAFETY_SETTINGS = [
   {
     "category": "HARM_CATEGORY_HARASSMENT",
-    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    "threshold": "BLOCK_NONE"
   },
   {
     "category": "HARM_CATEGORY_HATE_SPEECH",
-    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    "threshold": "BLOCK_NONE"
   },
   {
     "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    "threshold": "BLOCK_NONE"
   },
   {
     "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    "threshold": "BLOCK_NONE"
   },
 ]
 
@@ -132,7 +133,7 @@ Be a good educational assistant and craft the best way to explain the {sub_modul
     all_content = []
     flag = 1 if api_key_to_use== 'first' else (2 if api_key_to_use=='second' else 3 )
     print(f'THREAD {flag} RUNNING...')
-    google_api_key = google_api_key1 if flag == 1 else(openai_api_key2 if flag == 2 else openai_api_key3)
+    google_api_key = google_api_key1 if flag == 1 else(google_api_key2 if flag == 2 else google_api_key3)
     genai.configure(api_key=google_api_key)
     for key,val in output.items():
         model = genai.GenerativeModel('gemini-1.0-pro', generation_config=GENERATION_CONFIG, safety_settings=SAFETY_SETTINGS,)
@@ -210,7 +211,7 @@ Be a good educational assistant and craft the best way to explain the {sub_modul
     flag = 1 if api_key_to_use== 'first' else (2 if api_key_to_use=='second' else 3 )
     print(f'THREAD {flag} RUNNING...')
     tavily_api_key = tavily_api_key1 if flag == 1 else(tavily_api_key2 if flag == 2 else tavily_api_key3)
-    google_api_key = google_api_key1 if flag == 1 else(openai_api_key2 if flag == 2 else openai_api_key3)
+    google_api_key = google_api_key1 if flag == 1 else(google_api_key2 if flag == 2 else google_api_key3)
     genai.configure(api_key=google_api_key)
     all_content = []
     tavily_client = TavilyClient(api_key=tavily_api_key)
@@ -742,7 +743,7 @@ Be a good educational assistant and craft the best way to explain the {sub_modul
     all_content = []
     flag = 1 if api_key_to_use== 'first' else (2 if api_key_to_use=='second' else 3 )
     print(f'THREAD {flag} RUNNING...')
-    google_api_key = google_api_key1 if flag == 1 else(openai_api_key2 if flag == 2 else openai_api_key3)
+    google_api_key = google_api_key1 if flag == 1 else(google_api_key2 if flag == 2 else google_api_key3)
     genai.configure(api_key=google_api_key)
     for key,val in output.items():
         relevant_docs = vectordb.similarity_search(val)
@@ -754,6 +755,7 @@ Be a good educational assistant and craft the best way to explain the {sub_modul
 
         print("Thread 1: Module Generated: ",key,"!")   
         content_output = get_dict_from_json(response)
+        print('CONTENT OUTPUT\n\n', content_output)
         content_output['subject_name'] = val
         print(content_output)
         all_content.append(content_output)
