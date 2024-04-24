@@ -73,7 +73,7 @@ def get_dict_from_json(response):
     match = pattern.search(response.text)
     if match:
         matched_json = match.group()
-        cleaned_json = matched_json.replace('\\n', '').replace('\n', '')
+        cleaned_json = matched_json.replace('\\n', '').replace('\n', '').replace('*', '')
         try:
             data_dict = json.loads(cleaned_json)
             return data_dict
@@ -135,6 +135,7 @@ Be a good educational assistant and craft the best way to explain the {sub_modul
     google_api_key = google_api_key1 if flag == 1 else(openai_api_key2 if flag == 2 else openai_api_key3)
     genai.configure(api_key=google_api_key)
     for key,val in output.items():
+        model = genai.GenerativeModel('gemini-1.0-pro', generation_config=GENERATION_CONFIG, safety_settings=SAFETY_SETTINGS,)
         response = model.generate_content(prompt_content_gen.format(sub_module_name = val, module_name = module_name))
         content_output = get_dict_from_json(response)
         content_output['subject_name'] = val
@@ -216,6 +217,7 @@ Be a good educational assistant and craft the best way to explain the {sub_modul
     for key, val in sub_module_name.items():    
         print('Searching content for module:', key)
         search_result = tavily_client.get_search_context(val+module_name, search_depth="advanced", max_tokens=8000)
+        model = genai.GenerativeModel('gemini-1.0-pro', generation_config=GENERATION_CONFIG, safety_settings=SAFETY_SETTINGS,)
         response = model.generate_content(content_generation_prompt.format(sub_module_name = val, search_result = search_result, module_name=module_name))
         output = get_dict_from_json(response)
         print('Module Generated:', key, '!')
@@ -296,7 +298,7 @@ def module_videos_from_web(submodules):
     videos_list=[]
     for key in keys_list:
         params = {
-        "q": submodules,
+        "q": submodules[key],
         "engine": "google_videos",
         "ijn": "0",
         "api_key": google_serp_api_key
@@ -710,17 +712,8 @@ Topic: {topic}
 Context: {context}
 
 Follow the provided JSON format diligently."""
-
-  client = OpenAI()
-  completion = client.chat.completions.create(
-          model = 'gpt-3.5-turbo-1106',
-          messages = [
-              {'role':'user', 'content': module_generation_prompt.format(topic= topic, context = context)},
-          ],
-          response_format = {'type':'json_object'},
-          seed = 42,
-)
-  output = ast.literal_eval(completion.choices[0].message.content)
+  response = model.generate_content(module_generation_prompt.format(topic= topic, context = context))
+  output = get_dict_from_json(response)
 
   return output
 
@@ -730,7 +723,7 @@ As a knowledgeable educational assistant, I trust in your ability to provide \
 a comprehensive explanation of this sub-module. Think about the sub-module step by step and design the best way to explain the sub-module to me. \
 Your response should cover essential aspects such as definition, in-depth examples, and any details crucial for understanding the topic. \
 You have access to the subject's information which you have to use while generating the educational content. \
-Please generate quality content on the sub-module ensuring the response is sufficiently detailed covering all the relevant topics related to the sub-module. You will also \
+Please generate quality content on the sub-module ensuring the response is sufficiently detailed covering all the relevant topics related to the {sub_module_name}. You will also \
 be provided with my course requirements and needs. Structure the course according to my needs.
 
 MY COURSE REQUIREMENTS : {profile}
@@ -743,30 +736,24 @@ If applicable, incorporate real-world examples, applications or use-cases to ill
 that helps the student to better understand the topic. \
 Please format your output as valid JSON, with the following keys: title_for_the_content (suitable title for the sub-module), \
 content(the main content of the sub-module), subsections (a list of dictionaries with keys - title and content).
-Be a good educational assistant and craft the best way to explain the sub-module following my course requirement strictly..
+Be a good educational assistant and craft the best way to explain the {sub_module_name} following my course requirement strictly..
   """
-
+    
     all_content = []
     flag = 1 if api_key_to_use== 'first' else (2 if api_key_to_use=='second' else 3 )
     print(f'THREAD {flag} RUNNING...')
-    openai_api_key = openai_api_key1 if flag == 1 else(openai_api_key2 if flag == 2 else openai_api_key3)
+    google_api_key = google_api_key1 if flag == 1 else(openai_api_key2 if flag == 2 else openai_api_key3)
+    genai.configure(api_key=google_api_key)
     for key,val in output.items():
         relevant_docs = vectordb.similarity_search(val)
         rel_docs = [doc.page_content for doc in relevant_docs]
         context = '\n'.join(rel_docs)
 
-        client = OpenAI(api_key= openai_api_key)
+        model = genai.GenerativeModel('gemini-1.0-pro', generation_config=GENERATION_CONFIG, safety_settings=SAFETY_SETTINGS,)
+        response = model.generate_content(prompt.format(sub_module_name = val, module_name = module_name, profile= profile, context=context))
 
-        completion = client.chat.completions.create(
-                    model = 'gpt-3.5-turbo-1106',   
-                    messages = [
-                        {'role':'user', 'content': prompt.format(sub_module_name = val, module_name = module_name, profile= profile, context=context)},
-                    ],
-                    response_format = {'type':'json_object'},
-                    seed = 42
-        )
         print("Thread 1: Module Generated: ",key,"!")   
-        content_output = ast.literal_eval(completion.choices[0].message.content)
+        content_output = get_dict_from_json(response)
         content_output['subject_name'] = val
         print(content_output)
         all_content.append(content_output)
