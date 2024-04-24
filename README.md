@@ -1,7 +1,3 @@
-Certainly! Here's the updated README file with the addition of running the client:
-
----
-
 # Client Project Setup Guide
 
 This guide will walk you through the process of setting up your client project. Please follow the steps below:
@@ -69,7 +65,7 @@ This guide will walk you through the process of setting up your client project. 
 8. **Install Python Dependencies:**
 
     ```bash
-    pip install -r requirements.txt
+    pip install -r ./server/requirements.txt
     ```
 
 9. **Create .env File:**
