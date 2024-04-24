@@ -4,7 +4,7 @@ from server.models import User, Topic, Module, Query, CompletedModule, OngoingMo
 from concurrent.futures import ThreadPoolExecutor
 import os
 from flask_cors import cross_origin
-from server.users.utils import *
+from server.users.utils2 import *
 from deep_translator import GoogleTranslator
 from lingua import LanguageDetectorBuilder
 from iso639 import Lang
