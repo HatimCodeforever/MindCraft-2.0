@@ -149,3 +149,50 @@ class Module(db.Model):
             'image_urls': self.image_urls,
             'video_urls': self.video_urls
         }
+
+   
+class PersonalizedOngoingModule(db.Model):
+    """Personalized Ongoing Module by user"""
+    omid = db.Column(db.String(50), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    module_id = db.Column(db.Integer, nullable=False)
+    date_started = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone("Asia/Kolkata")))
+
+    def __repr__(self):
+        return f'<module_code={self.module_id} user_id={self.user_id} date_started={self.date_started}>'
+
+class PersonalizedCompletedModule(db.Model):
+    """Personalized Completed Modules by user"""
+    cmid = db.Column(db.String(50), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    module_id = db.Column(db.Integer,nullable=False)
+    date_completed = db.Column(db.DateTime, nullable=True)
+    theory_quiz_score = db.Column(db.Integer, nullable=True)
+    application_quiz_score = db.Column(db.Integer, nullable=True)
+    assignment_score = db.Column(db.JSON, nullable=True)
+
+    def __repr__(self):
+        return f'<module_code={self.module_id} user_id={self.user_id} date_completed={self.date_completed} theory_quiz_score={self.theory_quiz_score} application_quiz_score={self.application_quiz_score} assignment_score={self.assignment_score}>'
+
+class PersonalizedModule(db.Model):
+    """Modules in the app."""
+    module_id = db.Column(db.Integer, primary_key=True)
+    module_code = db.Column(db.String(50), unique=True)
+    module_name = db.Column(db.String(100), nullable=False)
+    summary = db.Column(db.String(500), nullable=False)
+    submodule_content = db.Column(db.JSON, nullable=True)
+    image_urls = db.Column(db.JSON, nullable=True)
+    video_urls = db.Column(db.JSON, nullable=True)
+
+    def __repr__(self):
+        return f'<module_name={self.module_name}  summary={self.summary}>'
+
+    def to_dict(self):
+        return {
+            'module_code': self.module_code,
+            'module_name': self.module_name,
+            'summary': self.summary,
+            'submodule_content': self.submodule_content,
+            'image_urls': self.image_urls,
+            'video_urls': self.video_urls
+        }

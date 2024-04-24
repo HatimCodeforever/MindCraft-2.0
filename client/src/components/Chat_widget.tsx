@@ -186,6 +186,11 @@ const ChatWidget: React.FC = () => {
               type="text"
               placeholder="Type your message..."
               value={userMessage}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSendMessage();
+                }
+              }}
               onChange={(e) => setUserMessage(e.target.value)}
             />
             <button onClick={handleSendMessage} style={{ marginRight: '10px' }}>
